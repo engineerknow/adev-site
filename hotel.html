@@ -3,31 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A DEV - Premium Hotel Booking</title>
+    <title>A DEV - Premium Hotel Booking & Lifestyle</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kanit', sans-serif; }
+        body { font-family: 'Kanit', sans-serif; scroll-behavior: smooth; }
         .view-step { display: none; }
         .view-step.active { display: block; }
-        .hero-gradient { background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&q=80&w=1600'); background-size: cover; background-position: center; }
+        .hero-gradient { 
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&q=80&w=1600'); 
+            background-size: cover; 
+            background-position: center; 
+        }
+        .modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+        .modal.active { display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl m-4 relative">
+            <button onclick="toggleLogin()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <h3 class="text-2xl font-bold text-indigo-950 mb-2">ยินดีต้อนรับกลับมา</h3>
+            <p class="text-slate-500 mb-6">เข้าสู่ระบบเพื่อรับส่วนลดสมาชิกสูงสุด 20%</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">อีเมล</label>
+                    <input type="email" placeholder="example@email.com" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">รหัสผ่าน</label>
+                    <input type="password" placeholder="••••••••" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none">
+                </div>
+                <button onclick="toggleLogin()" class="w-full bg-indigo-950 text-white py-3 rounded-xl font-bold hover:bg-indigo-900 transition-all">
+                    เข้าสู่ระบบ
+                </button>
+                <div class="text-center text-sm text-slate-500">
+                    ยังไม่มีบัญชี? <a href="#" class="text-amber-600 font-bold">สมัครสมาชิก</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Navigation -->
     <nav class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100">
         <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
             <a href="javascript:void(0)" onclick="showStep('home')" class="text-2xl font-bold tracking-tight text-indigo-950">
-                A<span class="text-amber-600">DEV STAY DEMO</span>
+                A<span class="text-amber-600">DEV STAY</span>
             </a>
             <div class="hidden md:flex gap-8 text-sm font-medium">
-                <a href="#" class="hover:text-amber-600">ค้นหาที่พัก</a>
-                <a href="#" class="hover:text-amber-600">โปรโมชั่น</a>
-                <a href="#" class="hover:text-amber-600">ติดต่อเรา</a>
+                <a href="javascript:void(0)" onclick="showStep('home')" class="hover:text-amber-600 transition-colors">ค้นหาที่พัก</a>
+                <a href="javascript:void(0)" onclick="showStep('promotions')" class="hover:text-amber-600 transition-colors">โปรโมชั่น</a>
+                <a href="javascript:void(0)" onclick="showStep('contact')" class="hover:text-amber-600 transition-colors">ติดต่อเรา</a>
             </div>
-            <button class="bg-indigo-950 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-indigo-900 transition-all">
+            <button onclick="toggleLogin()" class="bg-indigo-950 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-indigo-900 transition-all">
                 เข้าสู่ระบบ
             </button>
         </div>
@@ -35,23 +68,26 @@
 
     <!-- STEP 1: HOME/SEARCH -->
     <div id="step-home" class="view-step active">
-        <section class="hero-gradient h-[500px] flex items-center justify-center text-center px-4">
-            <div class="max-w-3xl">
-                <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">ค้นหาประสบการณ์การพักผ่อนที่เหนือระดับ</h1>
-                <p class="text-white/90 text-lg mb-8">จองโรงแรม รีสอร์ท และที่พักส่วนตัวทั่วโลก พร้อมข้อเสนอพิเศษสำหรับคุณ</p>
+        <section class="hero-gradient h-[600px] flex items-center justify-center text-center px-4">
+            <div class="max-w-4xl">
+                <h1 class="text-4xl md:text-7xl font-bold text-white mb-6 leading-tight">ค้นพบสวรรค์แห่งการพักผ่อน<br><span class="text-amber-400">ในแบบที่คุณต้องการ</span></h1>
+                <p class="text-white/90 text-lg md:text-xl mb-10 max-w-2xl mx-auto">จองโรงแรมชั้นนำและรีสอร์ตหรูทั่วโลก พร้อมสิทธิพิเศษสำหรับสมาชิก A DEV เท่านั้น</p>
                 
                 <!-- Search Bar -->
-                <div class="bg-white p-2 rounded-2xl md:rounded-full shadow-2xl flex flex-col md:flex-row gap-2">
-                    <div class="flex-1 flex items-center px-6 py-3 border-b md:border-b-0 md:border-r border-slate-100">
-                        <i class="fas fa-map-marker-alt text-amber-600 mr-3"></i>
-                        <input type="text" placeholder="คุณอยากไปที่ไหน?" class="w-full outline-none text-sm">
+                <div class="bg-white p-3 rounded-2xl md:rounded-full shadow-2xl flex flex-col md:flex-row gap-2 max-w-4xl mx-auto text-left">
+                    <div class="flex-[1.5] flex items-center px-6 py-3 border-b md:border-b-0 md:border-r border-slate-100">
+                        <i class="fas fa-search text-amber-600 mr-3"></i>
+                        <input type="text" placeholder="จุดหมายปลายทางของคุณ..." class="w-full outline-none text-slate-700">
                     </div>
                     <div class="flex-1 flex items-center px-6 py-3 border-b md:border-b-0 md:border-r border-slate-100">
                         <i class="fas fa-calendar-alt text-amber-600 mr-3"></i>
-                        <input type="text" placeholder="วันที่เช็คอิน - เช็คเอาท์" class="w-full outline-none text-sm">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">วันที่เช็คอิน</span>
+                            <input type="date" class="w-full outline-none text-slate-600 text-sm bg-transparent">
+                        </div>
                     </div>
-                    <button class="bg-amber-600 text-white px-10 py-3 rounded-xl md:rounded-full font-bold hover:bg-amber-700 transition-all">
-                        ค้นหา
+                    <button class="bg-amber-600 text-white px-10 py-4 rounded-xl md:rounded-full font-bold hover:bg-amber-700 transition-all shadow-lg shadow-amber-600/20">
+                        ค้นหาที่พัก
                     </button>
                 </div>
             </div>
@@ -61,16 +97,179 @@
         <section class="max-w-7xl mx-auto px-4 py-20">
             <div class="flex justify-between items-end mb-10">
                 <div>
-                    <h2 class="text-3xl font-bold text-indigo-950">โรงแรมยอดนิยม</h2>
-                    <p class="text-slate-500">ที่พักที่ได้รับการจัดอันดับสูงสุดจากแขกของเรา</p>
+                    <h2 class="text-3xl font-bold text-indigo-950">โรงแรมและรีสอร์ตแนะนำ</h2>
+                    <p class="text-slate-500 mt-2">คัดสรรคุณภาพเพื่อช่วงเวลาที่พิเศษที่สุดของคุณ</p>
                 </div>
-                <a href="#" class="text-amber-600 font-semibold border-b-2 border-amber-600">ดูทั้งหมด</a>
+                <div class="flex gap-2 text-amber-600 font-bold cursor-pointer hover:underline">
+                    ดูทั้งหมด
+                </div>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="hotel-list">
                 <!-- Rendered by JS -->
             </div>
         </section>
+
+        <!-- Articles Section -->
+        <section class="bg-indigo-950 py-24 text-white">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">ข่าวสารและบทความที่น่าสนใจ</h2>
+                    <p class="text-indigo-200">อัปเดตเทรนด์การท่องเที่ยวและเทคนิคการเดินทางทั่วโลก</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="group cursor-pointer">
+                        <div class="h-48 rounded-2xl overflow-hidden mb-4">
+                            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-500">
+                        </div>
+                        <span class="text-amber-400 text-xs font-bold uppercase tracking-widest">Travel Tips</span>
+                        <h4 class="text-lg font-bold mt-2 group-hover:text-amber-400 transition-colors leading-snug">10 สถานที่ลับในภูเก็ตที่คุณต้องไปเยือนสักครั้งในปี 2024</h4>
+                    </div>
+                    <div class="group cursor-pointer">
+                        <div class="h-48 rounded-2xl overflow-hidden mb-4">
+                            <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-500">
+                        </div>
+                        <span class="text-amber-400 text-xs font-bold uppercase tracking-widest">Hotel Guide</span>
+                        <h4 class="text-lg font-bold mt-2 group-hover:text-amber-400 transition-colors leading-snug">วิธีเลือกโรงแรมให้คุ้มค่าที่สุดในยุค New Normal</h4>
+                    </div>
+                    <div class="group cursor-pointer">
+                        <div class="h-48 rounded-2xl overflow-hidden mb-4">
+                            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-500">
+                        </div>
+                        <span class="text-amber-400 text-xs font-bold uppercase tracking-widest">Food & Drink</span>
+                        <h4 class="text-lg font-bold mt-2 group-hover:text-amber-400 transition-colors leading-snug">ดินเนอร์หรูบนดาดฟ้า: รวมลิสต์ร้านอาหารที่วิวสวยที่สุดในกรุงเทพฯ</h4>
+                    </div>
+                    <div class="group cursor-pointer">
+                        <div class="h-48 rounded-2xl overflow-hidden mb-4">
+                            <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-500">
+                        </div>
+                        <span class="text-amber-400 text-xs font-bold uppercase tracking-widest">Inside A DEV</span>
+                        <h4 class="text-lg font-bold mt-2 group-hover:text-amber-400 transition-colors leading-snug">ฉลองครบรอบ 5 ปี A DEV STAY มอบส่วนลดพิเศษแก่สมาชิก</h4>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="max-w-7xl mx-auto px-4 py-24 flex flex-col md:flex-row items-center gap-16">
+            <div class="md:w-1/2">
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- แก้ไขภาพที่เสียตรงนี้ -->
+                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=600" alt="โรงแรมหรู" class="rounded-2xl shadow-xl aspect-square object-cover">
+                    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=600" alt="รีสอร์ตวิวเขา" class="rounded-2xl shadow-xl mt-8 aspect-square object-cover">
+                </div>
+            </div>
+            <div class="md:w-1/2">
+                <span class="text-amber-600 font-bold tracking-widest text-sm uppercase">เกี่ยวกับเรา</span>
+                <h2 class="text-4xl font-bold text-indigo-950 mt-4 mb-6 leading-tight">สร้างมาตรฐานใหม่<br>ให้กับการพักผ่อนของคุณ</h2>
+                <p class="text-slate-600 leading-relaxed mb-8">
+                    ที่ A DEV STAY เราเชื่อว่าการเดินทางไม่ใช่แค่การย้ายที่อยู่ แต่เป็นการค้นพบความหมายใหม่ๆ ของชีวิต เราจึงคัดสรรที่พักที่ใส่ใจในทุกรายละเอียด ตั้งแต่สถาปัตยกรรมที่สวยงาม ไปจนถึงการบริการที่อบอุ่นเหมือนบ้าน เพื่อให้ทุกคืนที่คุณพักกับเราเป็นความทรงจำที่ไม่ลืมเลือน
+                </p>
+                <div class="flex gap-8">
+                    <div>
+                        <h5 class="text-3xl font-bold text-indigo-950">10k+</h5>
+                        <p class="text-slate-500 text-sm font-medium">แขกที่ไว้วางใจ</p>
+                    </div>
+                    <div>
+                        <h5 class="text-3xl font-bold text-indigo-950">500+</h5>
+                        <p class="text-slate-500 text-sm font-medium">ที่พักพันธมิตร</p>
+                    </div>
+                    <div>
+                        <h5 class="text-3xl font-bold text-indigo-950">4.9</h5>
+                        <p class="text-slate-500 text-sm font-medium">คะแนนความพึงพอใจ</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- STEP: PROMOTIONS -->
+    <div id="step-promotions" class="view-step py-20">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-4xl font-bold text-indigo-950 mb-4 text-center">โปรโมชั่นและข้อเสนอพิเศษ</h2>
+            <p class="text-slate-500 text-center mb-12">ประหยัดมากขึ้นด้วยแคมเปญล่าสุดจากเรา</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-amber-100 rounded-3xl p-10 flex flex-col md:flex-row items-center gap-8 border border-amber-200">
+                    <div class="text-amber-900">
+                        <span class="bg-amber-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase">Early Bird</span>
+                        <h3 class="text-3xl font-bold mt-4 mb-2">จองล่วงหน้า 30 วัน</h3>
+                        <p class="text-amber-800/80 mb-6">รับส่วนลดทันที 15% สำหรับห้องพักทุกประเภท ทั่วประเทศไทย</p>
+                        <button class="bg-indigo-950 text-white px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform">รับสิทธิ์เลย</button>
+                    </div>
+                    <div class="w-40 h-40 bg-white rounded-full flex items-center justify-center text-5xl font-bold text-amber-600 shadow-inner flex-shrink-0">15%</div>
+                </div>
+                <div class="bg-indigo-100 rounded-3xl p-10 flex flex-col md:flex-row items-center gap-8 border border-indigo-200">
+                    <div class="text-indigo-900">
+                        <span class="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase">Member Only</span>
+                        <h3 class="text-3xl font-bold mt-4 mb-2">บัตรสมาชิก Gold</h3>
+                        <p class="text-indigo-800/80 mb-6">พัก 3 คืน จ่ายเพียง 2 คืน พร้อมอัปเกรดห้องพักและอาหารเช้าฟรี</p>
+                        <button class="bg-indigo-950 text-white px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform">สมัครสมาชิก</button>
+                    </div>
+                    <div class="w-40 h-40 bg-white rounded-full flex items-center justify-center text-5xl font-bold text-indigo-600 shadow-inner flex-shrink-0">3+1</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP: CONTACT -->
+    <div id="step-contact" class="view-step py-20">
+        <div class="max-w-5xl mx-auto px-4 bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row">
+            <div class="md:w-2/5 bg-indigo-950 p-12 text-white">
+                <h3 class="text-3xl font-bold mb-6">ติดต่อเรา</h3>
+                <p class="text-indigo-200 mb-10">เราพร้อมช่วยเหลือคุณตลอด 24 ชั่วโมง สอบถามข้อมูลเพิ่มเติมหรือแจ้งปัญหาการจอง</p>
+                
+                <div class="space-y-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-indigo-900 rounded-full flex items-center justify-center">
+                            <i class="fas fa-phone text-amber-400"></i>
+                        </div>
+                        <span>+66 (0) 2-123-4567</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-indigo-900 rounded-full flex items-center justify-center">
+                            <i class="fas fa-envelope text-amber-400"></i>
+                        </div>
+                        <span>support@adevstay.com</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-indigo-900 rounded-full flex items-center justify-center">
+                            <i class="fas fa-map-marker-alt text-amber-400"></i>
+                        </div>
+                        <span class="text-sm">อาคาร เอ-เดฟ ชั้น 24 กรุงเทพมหานคร</span>
+                    </div>
+                </div>
+            </div>
+            <div class="md:w-3/5 p-12">
+                <form class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-400 uppercase mb-2">ชื่อของคุณ</label>
+                            <input type="text" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-400 uppercase mb-2">เบอร์ติดต่อ</label>
+                            <input type="text" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-400 uppercase mb-2">หัวข้อสอบถาม</label>
+                        <select class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                            <option>สอบถามสถานะการจอง</option>
+                            <option>แจ้งปัญหาการชำระเงิน</option>
+                            <option>ติดต่อเรื่องความร่วมมือทางธุรกิจ</option>
+                            <option>อื่นๆ</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-400 uppercase mb-2">ข้อความ</label>
+                        <textarea rows="4" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:border-amber-500"></textarea>
+                    </div>
+                    <button type="button" onclick="alert('ส่งข้อความเรียบร้อย! เจ้าหน้าที่จะติดต่อกลับโดยเร็วที่สุด')" class="w-full bg-amber-600 text-white py-4 rounded-xl font-bold hover:bg-amber-700 transition-all shadow-lg shadow-amber-600/20">
+                        ส่งข้อความ
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <!-- STEP 2: ROOM DETAILS & BOOKING -->
@@ -121,7 +320,7 @@
                             <span id="detail-price" class="text-3xl font-bold text-amber-600"></span>
                             <span class="text-slate-400 text-sm"> / คืน</span>
                         </div>
-                        <div class="text-amber-500 text-sm">
+                        <div class="text-amber-500 text-sm font-bold">
                             <i class="fas fa-star"></i> 4.9 (120 รีวิว)
                         </div>
                     </div>
@@ -130,14 +329,6 @@
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-400 mb-1">วันที่เข้าพัก</label>
                             <input type="date" value="2024-05-10" class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-amber-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">จำนวนแขก</label>
-                            <select class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 outline-none">
-                                <option>ผู้ใหญ่ 2 ท่าน</option>
-                                <option>ผู้ใหญ่ 1 ท่าน</option>
-                                <option>ครอบครัว (ผู้ใหญ่ 2 เด็ก 1)</option>
-                            </select>
                         </div>
                     </div>
 
@@ -159,7 +350,6 @@
                     <button onclick="confirmBooking()" class="w-full bg-indigo-950 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all">
                         จองตอนนี้
                     </button>
-                    <p class="text-center text-xs text-slate-400 mt-4">คุณยังไม่ถูกเรียกเก็บเงินในขั้นตอนนี้</p>
                 </div>
             </div>
         </div>
@@ -172,22 +362,16 @@
                 <i class="fas fa-check"></i>
             </div>
             <h2 class="text-3xl font-bold text-indigo-950 mb-3">การจองของคุณสำเร็จแล้ว!</h2>
-            <p class="text-slate-500 mb-10">เราได้ส่งรายละเอียดการจองและใบยืนยันไปที่อีเมลของคุณเรียบร้อยแล้ว</p>
+            <p class="text-slate-500 mb-10">เราได้ส่งรายละเอียดการจองไปที่อีเมลของคุณแล้ว</p>
             
             <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm text-left mb-10">
-                <div class="flex justify-between mb-4 pb-4 border-b border-slate-50">
+                <div class="flex justify-between mb-4 pb-4 border-b">
                     <span class="text-slate-400 text-sm">หมายเลขการจอง</span>
-                    <span class="font-bold text-indigo-950">#LS-998234</span>
+                    <span class="font-bold text-indigo-950">#ADEV-8899</span>
                 </div>
-                <div class="space-y-3">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-slate-400">เช็คอิน:</span>
-                        <span class="font-medium">10 พ.ค. 2024</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-slate-400">ที่พัก:</span>
-                        <span id="success-hotel-name" class="font-medium text-right ml-4"></span>
-                    </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">ที่พัก:</span>
+                    <span id="success-hotel-name" class="font-medium text-right ml-4"></span>
                 </div>
             </div>
 
@@ -196,6 +380,46 @@
             </button>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-100 py-16 border-t border-slate-200">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div>
+                    <h4 class="text-xl font-bold text-indigo-950 mb-4">A DEV STAY</h4>
+                    <p class="text-slate-500 text-sm">เราคัดสรรประสบการณ์การพักผ่อนที่ดีที่สุดเพื่อคุณ จองง่าย มั่นใจ ได้ราคาดีที่สุด</p>
+                </div>
+                <div>
+                    <h5 class="font-bold mb-4">เมนูแนะนำ</h5>
+                    <ul class="text-slate-500 text-sm space-y-2">
+                        <li><a href="#" class="hover:text-amber-600">ค้นหาที่พัก</a></li>
+                        <li><a href="#" class="hover:text-amber-600">โปรโมชั่นสมาชิก</a></li>
+                        <li><a href="#" class="hover:text-amber-600">ที่พักยอดนิยม</a></li>
+                        <li><a href="#" class="hover:text-amber-600">แพ็กเกจท่องเที่ยว</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-bold mb-4">ช่วยเหลือ</h5>
+                    <ul class="text-slate-500 text-sm space-y-2">
+                        <li><a href="#" class="hover:text-amber-600">ศูนย์ช่วยเหลือ</a></li>
+                        <li><a href="#" class="hover:text-amber-600">นโยบายความเป็นส่วนตัว</a></li>
+                        <li><a href="#" class="hover:text-amber-600">เงื่อนไขการใช้บริการ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-bold mb-4">ติดตามเรา</h5>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-indigo-950 hover:bg-amber-600 hover:text-white transition-all shadow-sm"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-indigo-950 hover:bg-amber-600 hover:text-white transition-all shadow-sm"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-indigo-950 hover:bg-amber-600 hover:text-white transition-all shadow-sm"><i class="fab fa-line"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-slate-200 pt-8 text-center text-slate-400 text-xs font-medium">
+                © 2024 A DEV STAY (DEMO PROJECT). ALL RIGHTS RESERVED.
+            </div>
+        </div>
+    </footer>
 
     <script>
         const hotels = [
@@ -213,10 +437,14 @@
             renderHotels();
         }
 
+        function toggleLogin() {
+            document.getElementById('login-modal').classList.toggle('active');
+        }
+
         function renderHotels() {
             const list = document.getElementById('hotel-list');
             list.innerHTML = hotels.map(hotel => `
-                <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all cursor-pointer group" onclick="viewDetails(${hotel.id})">
+                <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all cursor-pointer group border border-slate-50" onclick="viewDetails(${hotel.id})">
                     <div class="h-64 overflow-hidden relative">
                         <img src="${hotel.img}" alt="${hotel.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-amber-600 shadow-sm">
@@ -233,7 +461,7 @@
                                 <span class="text-xl font-bold text-indigo-950">฿${hotel.price.toLocaleString()}</span>
                                 <span class="text-slate-400 text-xs"> / คืน</span>
                             </div>
-                            <span class="text-amber-600 text-xs font-bold flex items-center">จองเลย <i class="fas fa-arrow-right ml-1"></i></span>
+                            <span class="text-amber-600 text-xs font-bold flex items-center group-hover:gap-2 transition-all">จองเลย <i class="fas fa-arrow-right"></i></span>
                         </div>
                     </div>
                 </div>
@@ -261,7 +489,8 @@
 
         function showStep(step) {
             document.querySelectorAll('.view-step').forEach(el => el.classList.remove('active'));
-            document.getElementById(`step-${step}`).classList.add('active');
+            const target = document.getElementById(`step-${step}`);
+            if(target) target.classList.add('active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
