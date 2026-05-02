@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A DEV Game DEMO - เติมเกมออนไลน์ ข่าวสาร และโปรโมชั่นล่าสุด</title>
+    <title>A DEV Game DEMO - เติมเกมออนไลน์ ข่าวสาร และใบเสร็จรับเงิน</title>
     <meta name="description" content="ติดตามข่าวสารเกมออนไลน์ โปรโมชั่นเติมเงินสุดคุ้ม และอัปเดตแพทช์ใหม่ก่อนใครที่ GameVibe บริการเติมเกม 24 ชม.">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -32,13 +32,17 @@
         
         .game-banner { position: relative; height: 350px; border-radius: 3rem; overflow: hidden; margin-bottom: -100px; z-index: 0; }
         .game-banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 0%, #020617 100%); }
+
+        /* Receipt Style */
+        .receipt-container { background: #fff; color: #000; width: 100%; max-width: 400px; border-radius: 2rem; padding: 2rem; position: relative; }
+        .receipt-container::before { content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 10px solid #fff; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
     <div id="toast-container" class="fixed top-5 right-5 z-[1000]"></div>
 
-    <!-- Modals -->
+    <!-- Modals: QR Code -->
     <div id="modal-qr" class="modal-overlay hide">
         <div class="glass p-8 rounded-[3rem] border border-white/10 w-full max-w-sm text-center">
             <h3 class="text-2xl font-black italic uppercase mb-2 text-white text-center">ชำระเงิน <span id="qr-method-name" class="text-blue-500">QR CODE</span></h3>
@@ -52,6 +56,52 @@
             <div class="flex flex-col gap-3">
                 <button onclick="simulatePaymentSuccess()" class="w-full bg-blue-600 py-4 rounded-2xl font-black italic hover:bg-blue-500 transition-all uppercase">แจ้งชำระเงินแล้ว</button>
                 <button onclick="closeModal('modal-qr')" class="text-slate-500 text-xs font-bold uppercase hover:text-white">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals: Receipt -->
+    <div id="modal-receipt" class="modal-overlay hide">
+        <div class="receipt-container shadow-2xl animate-bounce-in">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold">ชำระเงินสำเร็จ</h3>
+                <p class="text-gray-400 text-xs">ขอบคุณที่ใช้บริการ GameA DEV</p>
+            </div>
+            
+            <div class="border-t border-b border-dashed border-gray-200 py-4 mb-4 space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Order ID:</span>
+                    <span id="rcp-order-id" class="font-bold">#ADV-0000</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">วันที่:</span>
+                    <span id="rcp-date" class="font-bold">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">เกม:</span>
+                    <span id="rcp-game" class="font-bold">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">แพ็กเกจ:</span>
+                    <span id="rcp-pack" class="font-bold">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">ID ผู้เล่น:</span>
+                    <span id="rcp-target" class="font-bold text-blue-600">-</span>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <span class="text-gray-500 font-bold uppercase text-xs">ยอดรวมทั้งสิ้น</span>
+                <span id="rcp-price" class="text-2xl font-black text-gray-900">0.00 ฿</span>
+            </div>
+
+            <div class="space-y-2">
+                <button onclick="closeModal('modal-receipt')" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-all">กลับหน้าหลัก</button>
+                <button onclick="window.print()" class="w-full border border-gray-200 text-gray-400 py-3 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all uppercase">บันทึกใบเสร็จ</button>
             </div>
         </div>
     </div>
@@ -111,7 +161,7 @@
                 </div>
             </section>
 
-            <!-- NEWS SECTION (Restored) -->
+            <!-- NEWS SECTION -->
             <section class="py-24 px-6 bg-slate-900/30">
                 <div class="max-w-7xl mx-auto">
                     <div class="flex justify-between items-end mb-12">
@@ -121,9 +171,7 @@
                         </div>
                         <button onclick="showPage('news-all')" class="text-[10px] font-bold uppercase tracking-widest text-blue-400 hover:text-white transition-colors">ดูทั้งหมด <i class="fas fa-arrow-right ml-2"></i></button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="news-grid-home">
-                        <!-- News items will be here -->
-                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="news-grid-home"></div>
                 </div>
             </section>
 
@@ -270,8 +318,6 @@
                     </div>
                 </div>
             `).join('');
-            
-            // For News-All page
             const fullGrid = document.getElementById('full-news-list');
             if(fullGrid) fullGrid.innerHTML = grid.innerHTML;
         }
@@ -345,9 +391,16 @@
         }
 
         function handlePurchase() {
-            if (!document.getElementById('target-id').value) return showToast('กรุณากรอก ID ผู้ใช้');
+            const targetId = document.getElementById('target-id').value;
+            if (!targetId) return showToast('กรุณากรอก ID ผู้ใช้');
             if (!currentSelection.pack) return showToast('กรุณาเลือกแพ็กเกจ');
             if (!currentSelection.method) return showToast('กรุณาเลือกวิธีชำระเงิน');
+            
+            if (currentSelection.method === 'POINTS' && user.points < currentSelection.pack.price) {
+                return showToast('คะแนนคงเหลือไม่เพียงพอ');
+            }
+            
+            currentSelection.target = targetId;
             openQR(currentSelection.pack.price, currentSelection.method);
         }
 
@@ -366,18 +419,34 @@
         function simulatePaymentSuccess() {
             const isTopup = !document.getElementById('page-topup').classList.contains('hide');
             closeModal('modal-qr');
+            
             if (isTopup) {
                 user.points += currentSelection.topupAmt;
                 updateUserUI();
                 showPage('home');
+                showToast('เติมคะแนนสำเร็จ!', 'success');
             } else {
                 if (currentSelection.method === 'POINTS') {
                     user.points -= currentSelection.pack.price;
                     updateUserUI();
                 }
-                showPage('home');
+                showReceipt();
+                showToast('สั่งซื้อสำเร็จ!', 'success');
             }
-            showToast('ทำรายการสำเร็จ!', 'success');
+        }
+
+        function showReceipt() {
+            const orderId = 'ADV-' + Math.floor(1000 + Math.random() * 9000);
+            const dateStr = new Date().toLocaleString('th-TH');
+            
+            document.getElementById('rcp-order-id').innerText = '#' + orderId;
+            document.getElementById('rcp-date').innerText = dateStr;
+            document.getElementById('rcp-game').innerText = currentSelection.game.name;
+            document.getElementById('rcp-pack').innerText = currentSelection.pack.name;
+            document.getElementById('rcp-target').innerText = currentSelection.target;
+            document.getElementById('rcp-price').innerText = currentSelection.pack.price.toFixed(2) + ' ฿';
+            
+            document.getElementById('modal-receipt').classList.remove('hide');
         }
 
         function login() {
@@ -394,10 +463,10 @@
         function showToast(msg, type = 'error') {
             const container = document.getElementById('toast-container');
             const t = document.createElement('div');
-            t.className = `glass ${type==='success'?'border-green-500':'border-red-500'} text-white px-8 py-4 rounded-2xl mb-4 font-black italic uppercase text-[10px] shadow-2xl`;
+            t.className = `glass ${type==='success'?'border-green-500 text-green-400':'border-red-500 text-red-400'} px-8 py-4 rounded-2xl mb-4 font-black italic uppercase text-[10px] shadow-2xl transition-all duration-500`;
             t.innerText = msg;
             container.appendChild(t);
-            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 3000);
+            setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(20px)'; setTimeout(() => t.remove(), 500); }, 3000);
         }
     </script>
 </body>
