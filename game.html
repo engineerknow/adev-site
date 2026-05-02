@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GameVibe - เติมเกมออนไลน์ ราคาถูก ปลอดภัย 24 ชม.</title>
-    <!-- SEO Tags -->
-    <meta name="description" content="บริการเติมเกมออนไลน์ ยอดนิยม Valorant, RoV, Free Fire และอื่นๆ ราคาถูกที่สุดในไทย ระบบอัตโนมัติ รวดเร็ว ภายใน 1 นาที">
-    <meta name="keywords" content="เติมเกม, เติมเงินเกม, Valorant, RoV, Free Fire, เติมพอยท์">
+    <title>GameVibe - เติมเกมออนไลน์ ข่าวสาร และโปรโมชั่นล่าสุด</title>
+    <meta name="description" content="ติดตามข่าวสารเกมออนไลน์ โปรโมชั่นเติมเงินสุดคุ้ม และอัปเดตแพทช์ใหม่ก่อนใครที่ GameVibe บริการเติมเกม 24 ชม.">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -23,52 +21,38 @@
         .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .card-hover:hover { transform: translateY(-8px); border-color: rgba(59, 130, 246, 0.5); box-shadow: 0 20px 40px -15px rgba(59, 130, 246, 0.3); }
 
-        .method-selected { border-color: #3b82f6 !important; background: rgba(59, 130, 246, 0.1) !important; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+        .method-selected { border-color: #3b82f6 !important; background: rgba(59, 130, 246, 0.1) !important; }
         .pkg-selected { border-color: #3b82f6 !important; background: rgba(59, 130, 246, 0.15) !important; transform: scale(1.02); }
 
         .modal-overlay { background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px); position: fixed; inset: 0; z-index: 100; display: flex; items: center; justify-content: center; padding: 20px; }
-        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
         
-        /* Game Detail Banner Styles */
+        /* News Specific */
+        .news-card img { transition: transform 0.5s ease; }
+        .news-card:hover img { transform: scale(1.1); }
+        
         .game-banner { position: relative; height: 350px; border-radius: 3rem; overflow: hidden; margin-bottom: -100px; z-index: 0; }
         .game-banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 0%, #020617 100%); }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <div id="toast-container"></div>
+    <div id="toast-container" class="fixed top-5 right-5 z-[1000]"></div>
 
     <!-- Modals -->
     <div id="modal-qr" class="modal-overlay hide">
         <div class="glass p-8 rounded-[3rem] border border-white/10 w-full max-w-sm text-center">
-            <h3 class="text-2xl font-black italic uppercase mb-2 text-white">ชำระเงิน <span id="qr-method-name" class="text-blue-500">QR CODE</span></h3>
-            <div class="bg-white p-4 rounded-3xl mb-6 inline-block shadow-2xl mt-4">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=GameVibePaymentMock" alt="QR Code" class="w-48 h-48">
+            <h3 class="text-2xl font-black italic uppercase mb-2 text-white text-center">ชำระเงิน <span id="qr-method-name" class="text-blue-500">QR CODE</span></h3>
+            <div class="bg-white p-4 rounded-3xl mb-6 inline-block mt-4">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=GameVibePayment" alt="QR Code" class="w-48 h-48">
             </div>
             <div class="space-y-2 mb-8">
-                <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest">ยอดชำระสุทธิ</p>
-                <p id="qr-amount" class="text-4xl font-black italic text-white leading-none">0.00 ฿</p>
+                <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest text-center">ยอดชำระสุทธิ</p>
+                <p id="qr-amount" class="text-4xl font-black italic text-white leading-none text-center">0.00 ฿</p>
             </div>
             <div class="flex flex-col gap-3">
                 <button onclick="simulatePaymentSuccess()" class="w-full bg-blue-600 py-4 rounded-2xl font-black italic hover:bg-blue-500 transition-all uppercase">แจ้งชำระเงินแล้ว</button>
                 <button onclick="closeModal('modal-qr')" class="text-slate-500 text-xs font-bold uppercase hover:text-white">ยกเลิก</button>
             </div>
-        </div>
-    </div>
-
-    <div id="modal-receipt" class="modal-overlay hide">
-        <div class="bg-white text-slate-900 p-8 rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden relative">
-            <div class="text-center border-b border-dashed border-slate-200 pb-6 mb-6">
-                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-check text-2xl"></i></div>
-                <h3 class="text-2xl font-black italic uppercase">ทำรายการสำเร็จ</h3>
-                <p class="text-[10px] text-slate-400 font-bold uppercase">ขอบคุณที่ใช้บริการ GameVibe</p>
-            </div>
-            <div class="space-y-4 mb-8 text-sm">
-                <div class="flex justify-between font-bold"><span class="text-slate-400 uppercase">สินค้า:</span> <span id="rec-item">ITEM</span></div>
-                <div class="flex justify-between font-bold"><span class="text-slate-400 uppercase">ID ผู้ใช้:</span> <span id="rec-id">#ID</span></div>
-                <div class="flex justify-between border-t border-slate-100 pt-4 font-black"><span class="text-slate-400 uppercase">ราคา:</span> <span id="rec-price" class="text-xl text-blue-600">0.00 ฿</span></div>
-            </div>
-            <button onclick="closeModal('modal-receipt'); showPage('home');" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black italic uppercase hover:bg-blue-600 transition-all">กลับหน้าหลัก</button>
         </div>
     </div>
 
@@ -85,6 +69,7 @@
                 <div class="hidden lg:flex items-center gap-8 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
                     <a href="javascript:void(0)" onclick="showPage('home')" class="hover:text-white transition-colors">หน้าแรก</a>
                     <a href="javascript:void(0)" onclick="showPage('shop')" class="hover:text-white transition-colors">ร้านค้า</a>
+                    <a href="javascript:void(0)" onclick="showPage('news-all')" class="hover:text-white transition-colors">ข่าวสาร</a>
                     <a href="javascript:void(0)" onclick="showPage('topup')" class="hover:text-white transition-colors">เติมพอยท์</a>
                 </div>
             </div>
@@ -97,7 +82,7 @@
                     <p class="text-[8px] text-slate-500 font-bold uppercase">ยอดคงเหลือ</p>
                     <p class="text-xs font-black text-white"><span id="points-display">0</span> <span class="text-blue-500">Pts</span></p>
                 </div>
-                <button onclick="showPage('topup')" class="w-8 h-8 rounded-lg bg-blue-600 hover:bg-blue-500 flex items-center justify-center transition-all shadow-lg shadow-blue-600/20"><i class="fas fa-plus text-white text-[10px]"></i></button>
+                <button onclick="showPage('topup')" class="w-8 h-8 rounded-lg bg-blue-600 hover:bg-blue-500 flex items-center justify-center transition-all"><i class="fas fa-plus text-white text-[10px]"></i></button>
             </div>
         </div>
     </nav>
@@ -105,7 +90,7 @@
     <main class="flex-grow">
         <!-- Page: HOME -->
         <div id="page-home" class="page-content">
-            <section class="relative pt-20 pb-32 overflow-hidden px-6">
+            <section class="relative pt-20 pb-20 overflow-hidden px-6">
                 <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                     <div>
                         <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
@@ -113,27 +98,40 @@
                             <span class="text-[10px] font-bold uppercase tracking-widest text-blue-400">Official Partner & Verified</span>
                         </div>
                         <h1 class="text-6xl md:text-8xl font-black italic uppercase leading-[0.9] tracking-tighter text-white mb-8">
-                            LEVEL UP <br> YOUR <br> <span class="gradient-text">GAMING</span>
+                            TOPUP <br> WITH <br> <span class="gradient-text">CONFIDENCE</span>
                         </h1>
                         <p class="text-slate-400 text-lg mb-10 max-w-md italic leading-relaxed">
-                            เติมเงินเกมออนไลน์ รวดเร็ว ปลอดภัย ราคาถูกที่สุด พร้อมรับโปรโมชั่นและส่วนลดพิเศษสำหรับสมาชิก
+                            บริการเติมเกมออนไลน์ ข่าวสารล่าสุด และโปรโมชั่นสุดพิเศษสำหรับเกมเมอร์ตัวจริง
                         </p>
-                        <div class="flex flex-wrap gap-4">
-                            <button onclick="showPage('shop')" class="px-10 py-5 bg-blue-600 rounded-2xl font-black italic text-lg uppercase hover:bg-blue-500 transition-all shadow-2xl shadow-blue-600/40">ร้านค้าทั้งหมด</button>
-                        </div>
+                        <button onclick="showPage('shop')" class="px-10 py-5 bg-blue-600 rounded-2xl font-black italic text-lg uppercase hover:bg-blue-500 transition-all">เริ่มเติมเกมเลย</button>
                     </div>
                     <div class="relative hidden lg:block">
-                        <div class="rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl rotate-2">
-                            <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&h=1000&fit=crop" class="w-full h-full object-cover">
-                        </div>
+                        <img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=800&h=800&fit=crop" class="rounded-[3rem] border border-white/10 rotate-2 shadow-2xl">
                     </div>
                 </div>
             </section>
 
+            <!-- NEWS SECTION (Restored) -->
+            <section class="py-24 px-6 bg-slate-900/30">
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex justify-between items-end mb-12">
+                        <div>
+                            <h2 class="text-4xl font-black italic uppercase text-white tracking-tighter leading-none mb-2">Latest <span class="text-blue-500">News</span></h2>
+                            <p class="text-slate-500 text-[10px] uppercase font-bold tracking-[0.2em]">ข่าวสารและโปรโมชั่นใหม่ล่าสุด</p>
+                        </div>
+                        <button onclick="showPage('news-all')" class="text-[10px] font-bold uppercase tracking-widest text-blue-400 hover:text-white transition-colors">ดูทั้งหมด <i class="fas fa-arrow-right ml-2"></i></button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="news-grid-home">
+                        <!-- News items will be here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- POPULAR GAMES -->
             <section class="py-24 px-6">
                 <div class="max-w-7xl mx-auto text-center">
-                    <h2 class="text-4xl font-black italic uppercase text-white tracking-tighter mb-16">Popular <span class="text-blue-500">Choices</span></h2>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8" id="home-game-list"></div>
+                    <h2 class="text-4xl font-black italic uppercase text-white tracking-tighter mb-16 leading-none">Popular <span class="text-blue-500">Games</span></h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8" id="home-game-list"></div>
                 </div>
             </section>
         </div>
@@ -142,86 +140,69 @@
         <div id="page-shop" class="page-content hide py-24 px-6">
             <div class="max-w-7xl mx-auto">
                 <div class="text-center mb-16">
-                    <h2 class="text-5xl font-black italic uppercase text-white tracking-tighter">Our <span class="text-blue-500">Store</span></h2>
-                    <p class="text-slate-500 italic mt-4 uppercase tracking-[0.2em] text-[10px]">เลือกเกมที่คุณต้องการเติมเงินจากรายการทั้งหมด</p>
+                    <h2 class="text-5xl font-black italic uppercase text-white tracking-tighter">Game <span class="text-blue-500">Store</span></h2>
+                    <p class="text-slate-500 italic mt-4 uppercase tracking-[0.2em] text-[10px]">เลือกเกมที่คุณต้องการเติมเงิน</p>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8" id="full-game-list"></div>
             </div>
         </div>
 
-        <!-- Page: PRODUCT DETAIL (Enhanced with Banner & SEO Info) -->
+        <!-- Page: NEWS ALL -->
+        <div id="page-news-all" class="page-content hide py-24 px-6">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-5xl font-black italic uppercase text-white tracking-tighter">All <span class="text-blue-500">Updates</span></h2>
+                    <p class="text-slate-500 italic mt-4 uppercase tracking-[0.2em] text-[10px]">ข่าวสาร กิจกรรม และประกาศจากทีมงาน</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="full-news-list"></div>
+            </div>
+        </div>
+
+        <!-- Page: PRODUCT DETAIL -->
         <div id="page-product" class="page-content hide pb-24">
             <div id="game-banner" class="game-banner">
                 <img id="game-banner-img" src="" class="w-full h-full object-cover opacity-60">
             </div>
-
             <div class="max-w-7xl mx-auto px-6 relative z-10">
-                <!-- SEO Content & Heading -->
                 <div class="flex flex-col md:flex-row gap-10 items-end mb-16">
                     <div class="w-48 h-48 rounded-[2.5rem] overflow-hidden border-4 border-slate-950 shadow-2xl shrink-0">
                         <img id="game-thumb" src="" class="w-full h-full object-cover">
                     </div>
                     <div class="flex-grow pb-4">
                         <h2 id="game-title" class="text-6xl font-black italic uppercase text-white tracking-tighter leading-none mb-4">GAME TITLE</h2>
-                        <p id="game-desc" class="text-slate-400 italic max-w-2xl leading-relaxed">
-                            เติมเงิน [Game Name] ราคาถูกที่สุด รับพอยท์คืนทุกยอดการซื้อ ระบบส่งเข้าตัวละครโดยตรง รวดเร็ว ปลอดภัย 100% 
-                        </p>
+                        <p id="game-desc" class="text-slate-400 italic max-w-2xl leading-relaxed">...</p>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
                     <div class="lg:col-span-2 space-y-10">
-                        <!-- Step 1 -->
                         <div class="glass p-10 rounded-[3rem]">
-                            <div class="flex items-center gap-4 mb-8">
-                                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-black italic">1</div>
-                                <h4 class="text-xl font-black italic uppercase text-white">ระบุ ID ผู้เล่น</h4>
-                            </div>
-                            <input type="text" id="target-id" placeholder="กรอก ID ผู้ใช้งาน (เช่น 12345678)" class="w-full bg-slate-950 border border-white/5 rounded-2xl px-8 py-5 outline-none focus:border-blue-500 font-bold italic text-white text-lg shadow-inner">
+                            <h4 class="text-xl font-black italic uppercase text-white mb-8">1. ระบุ ID ผู้เล่น</h4>
+                            <input type="text" id="target-id" placeholder="กรอก UID / ID ผู้เล่น" class="w-full bg-slate-950 border border-white/5 rounded-2xl px-8 py-5 outline-none focus:border-blue-500 font-bold italic text-white text-lg">
                         </div>
-
-                        <!-- Step 2 (Visual Packs) -->
                         <div class="glass p-10 rounded-[3rem]">
-                            <div class="flex items-center gap-4 mb-8">
-                                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-black italic">2</div>
-                                <h4 class="text-xl font-black italic uppercase text-white">เลือกแพ็กเกจ</h4>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="pack-grid">
-                                <!-- Packs rendered via JS -->
-                            </div>
+                            <h4 class="text-xl font-black italic uppercase text-white mb-8">2. เลือกแพ็กเกจ</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="pack-grid"></div>
                         </div>
-
-                        <!-- Step 3 -->
                         <div class="glass p-10 rounded-[3rem]">
-                            <div class="flex items-center gap-4 mb-8">
-                                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-black italic">3</div>
-                                <h4 class="text-xl font-black italic uppercase text-white">ชำระเงิน</h4>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <h4 class="text-xl font-black italic uppercase text-white mb-8">3. ชำระเงิน</h4>
+                            <div class="grid grid-cols-2 gap-4">
                                 <div onclick="selectMethod('QR')" id="met-qr" class="method-card glass p-6 rounded-2xl flex flex-col items-center gap-2 cursor-pointer border border-white/5">
                                     <i class="fas fa-qrcode text-3xl text-blue-400"></i>
-                                    <span class="text-[10px] font-black uppercase tracking-widest mt-2">THAI QR</span>
+                                    <span class="text-[10px] font-black uppercase tracking-widest">THAI QR</span>
                                 </div>
                                 <div onclick="selectMethod('POINTS')" id="met-points" class="method-card glass p-6 rounded-2xl flex flex-col items-center gap-2 cursor-pointer border border-white/5">
                                     <i class="fas fa-coins text-3xl text-yellow-500"></i>
-                                    <span class="text-[10px] font-black uppercase tracking-widest mt-2">POINTS</span>
-                                </div>
-                                <div onclick="selectMethod('TRUE')" id="met-true" class="method-card glass p-6 rounded-2xl flex flex-col items-center gap-2 cursor-pointer border border-white/5 opacity-50 grayscale cursor-not-allowed">
-                                    <i class="fas fa-wallet text-3xl text-red-500"></i>
-                                    <span class="text-[10px] font-black uppercase tracking-widest mt-2">TRUEMONEY</span>
+                                    <span class="text-[10px] font-black uppercase tracking-widest">POINTS</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Right Column: Summary -->
                     <div class="lg:col-span-1">
-                        <div class="glass p-10 rounded-[3rem] sticky top-28 border border-blue-500/20 text-center shadow-2xl overflow-hidden">
-                            <div class="absolute top-0 left-0 w-full h-1 bg-blue-600"></div>
+                        <div class="glass p-10 rounded-[3rem] sticky top-28 border border-blue-500/20 text-center">
                             <h4 class="text-xl font-black italic mb-10 uppercase text-white">สรุปรายการ</h4>
                             <div class="mb-10 text-left space-y-4 text-sm font-bold">
-                                <div class="flex justify-between items-center"><span class="text-slate-500 uppercase">สินค้า</span> <span id="sum-game" class="text-white">...</span></div>
-                                <div class="flex justify-between items-center"><span class="text-slate-500 uppercase">แพ็กเกจ</span> <span id="sum-pack" class="text-white">...</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500 uppercase">สินค้า</span> <span id="sum-game" class="text-white">...</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500 uppercase">แพ็กเกจ</span> <span id="sum-pack" class="text-white">...</span></div>
                             </div>
                             <p id="sum-price" class="text-5xl font-black italic text-blue-500 mb-10 tracking-tighter">0.00 ฿</p>
                             <button onclick="handlePurchase()" class="w-full bg-blue-600 py-6 rounded-2xl font-black text-xl italic hover:bg-blue-500 shadow-2xl transition-all uppercase">ยืนยันการสั่งซื้อ</button>
@@ -233,106 +214,86 @@
 
         <!-- Page: TOPUP -->
         <div id="page-topup" class="page-content hide py-32 px-6">
-            <div class="max-w-4xl mx-auto text-center">
-                <h2 class="text-6xl font-black italic uppercase mb-16 text-white tracking-tighter">Topup <span class="text-blue-500">Points</span></h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16" id="topup-options">
-                    <!-- Topup amounts -->
-                </div>
-                <div class="max-w-sm mx-auto">
-                    <button onclick="handleTopup()" class="w-full bg-blue-600 py-6 rounded-3xl font-black text-xl italic hover:bg-blue-500 shadow-2xl transition-all uppercase">สร้างคิวอาร์โค้ด</button>
-                </div>
+            <div class="max-w-2xl mx-auto text-center glass p-16 rounded-[4rem]">
+                <h2 class="text-5xl font-black italic uppercase mb-12 text-white tracking-tighter leading-none">Topup <span class="text-blue-500">Points</span></h2>
+                <div class="grid grid-cols-2 gap-4 mb-12" id="topup-options"></div>
+                <button onclick="handleTopup()" class="w-full bg-blue-600 py-6 rounded-3xl font-black text-xl italic hover:bg-blue-500 transition-all uppercase">สร้าง QR ชำระเงิน</button>
             </div>
         </div>
     </main>
 
     <footer class="bg-slate-950 border-t border-white/5 py-20 mt-24">
         <div class="max-w-7xl mx-auto px-6 text-center">
-            <p class="text-[10px] font-bold text-slate-700 tracking-[0.3em] uppercase italic">© 2024 GAMEVIBE. THE ULTIMATE TOPUP SERVICE.</p>
+            <div class="flex justify-center gap-6 mb-8 text-slate-500">
+                <i class="fab fa-facebook hover:text-white cursor-pointer"></i>
+                <i class="fab fa-line hover:text-white cursor-pointer"></i>
+                <i class="fab fa-discord hover:text-white cursor-pointer"></i>
+            </div>
+            <p class="text-[10px] font-bold text-slate-700 tracking-[0.3em] uppercase italic">© 2024 GAMEVIBE. ALL RIGHTS RESERVED.</p>
         </div>
     </footer>
 
     <script>
-        // Data Mockup with Visuals & Descriptions
         const games = [
-            { 
-                id: 1, 
-                name: 'Valorant', 
-                img: 'https://images.unsplash.com/photo-1624138784614-87fd1b6528f8?q=80&w=400&h=400&fit=crop',
-                banner: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&h=600&fit=crop',
-                desc: 'เติมพอยท์ Valorant (VP) ราคาถูก รับของใน 1-5 นาที ใช้เพียง Riot ID เท่านั้น ปลอดภัย ไม่โดนแบน 100%',
-                packImg: 'https://cdn-icons-png.flaticon.com/512/3596/3596091.png',
-                packs: [{n: '475 VP', p: 150}, {n: '1,000 VP', p: 300}, {n: '2,050 VP', p: 600}, {n: '3,650 VP', p: 1050}, {n: '5,350 VP', p: 1500}, {n: '11,000 VP', p: 3000}] 
-            },
-            { 
-                id: 2, 
-                name: 'Genshin Impact', 
-                img: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=400&h=400&fit=crop',
-                banner: 'https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=1200&h=600&fit=crop',
-                desc: 'เติม Genesis Crystals และ Welkin Moon เกม Genshin Impact สะดวกรวดเร็ว เติมผ่าน UID ปลอดภัยแน่นอน',
-                packImg: 'https://cdn-icons-png.flaticon.com/512/3596/3596041.png',
-                packs: [{n: 'Welkin Moon', p: 175}, {n: '60 Crystals', p: 35}, {n: '300 Crystals', p: 175}, {n: '980 Crystals', p: 520}, {n: '1980 Crystals', p: 1000}] 
-            },
-            { 
-                id: 3, 
-                name: 'RoV', 
-                img: 'https://images.unsplash.com/photo-1589241062272-c0a000072dfa?q=80&w=400&h=400&fit=crop',
-                banner: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&h=600&fit=crop',
-                desc: 'เติมคูปอง RoV เร็วที่สุดในไทย ราคาถูกกว่าเติมเองแน่นอน รองรับการชำระเงินทุกรูปแบบ',
-                packImg: 'https://cdn-icons-png.flaticon.com/512/3596/3596067.png',
-                packs: [{n: '20 คูปอง', p: 20}, {n: '100 คูปอง', p: 99}, {n: '500 คูปอง', p: 480}, {n: '1000 คูปอง', p: 950}] 
-            },
-            { 
-                id: 4, 
-                name: 'Free Fire', 
-                img: 'https://images.unsplash.com/photo-1550745679-5652175bed48?q=80&w=400&h=400&fit=crop',
-                banner: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1200&h=600&fit=crop',
-                desc: 'เติมเพชร Free Fire ราคาถูก ใช้เพียง Player ID รับเพชรเข้าตัวละครทันที ระบบเสถียรที่สุด',
-                packImg: 'https://cdn-icons-png.flaticon.com/512/3596/3596035.png',
-                packs: [{n: '100 Diamonds', p: 40}, {n: '210 Diamonds', p: 80}, {n: '530 Diamonds', p: 190}] 
-            },
-            { 
-                id: 5, 
-                name: 'PUBG Mobile', 
-                img: 'https://images.unsplash.com/photo-1542751110-97427bbecf20?q=80&w=400&h=400&fit=crop',
-                banner: 'https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=1200&h=600&fit=crop',
-                desc: 'เติม UC PUBG Mobile ผ่านตัวละคร ปลอดภัย เติมไว ไม่ต้องรอคิว ราคาคุ้มค่าที่สุด',
-                packImg: 'https://cdn-icons-png.flaticon.com/512/3596/3596057.png',
-                packs: [{n: '60 UC', p: 35}, {n: '325 UC', p: 170}, {n: '660 UC', p: 335}] 
-            }
+            { id: 1, name: 'Valorant', img: 'https://images.unsplash.com/photo-1624138784614-87fd1b6528f8?q=80&w=400&h=400&fit=crop', banner: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&h=600&fit=crop', desc: 'เติม VP ราคาถูกที่สุด เริ่มต้นเพียง 150 บาท ใช้เพียง Riot ID', packImg: 'https://cdn-icons-png.flaticon.com/512/3596/3596091.png', packs: [{n: '475 VP', p: 150}, {n: '1000 VP', p: 300}, {n: '2050 VP', p: 600}] },
+            { id: 2, name: 'Genshin Impact', img: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=400&h=400&fit=crop', banner: 'https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=1200&h=600&fit=crop', desc: 'เติม Genesis Crystals ปลอดภัยผ่าน UID รับของทันที 24 ชม.', packImg: 'https://cdn-icons-png.flaticon.com/512/3596/3596041.png', packs: [{n: '60 Crystals', p: 35}, {n: 'Welkin Moon', p: 175}, {n: '300 Crystals', p: 175}] },
+            { id: 3, name: 'RoV', img: 'https://images.unsplash.com/photo-1589241062272-c0a000072dfa?q=80&w=400&h=400&fit=crop', banner: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&h=600&fit=crop', desc: 'คูปอง RoV ส่งไว ราคาประหยัด รองรับทุกธนาคาร', packImg: 'https://cdn-icons-png.flaticon.com/512/3596/3596067.png', packs: [{n: '20 คูปอง', p: 20}, {n: '100 คูปอง', p: 99}, {n: '500 คูปอง', p: 480}] }
+        ];
+
+        const news = [
+            { id: 1, tag: 'Promotion', title: 'โปรโมชั่นเติม Valorant รับโบนัส VP 10%', date: '12 May 2024', img: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&h=400&fit=crop' },
+            { id: 2, tag: 'Update', title: 'GameVibe รองรับการชำระผ่าน PromptPay แล้ว!', date: '10 May 2024', img: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=600&h=400&fit=crop' },
+            { id: 3, tag: 'Event', title: 'แจกโค้ดส่วนลด 50 บาท เฉพาะสมาชิกใหม่', date: '08 May 2024', img: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600&h=400&fit=crop' }
         ];
 
         let user = { points: 0, isLoggedIn: false };
         let currentSelection = { game: null, pack: null, method: null, topupAmt: 0 };
 
         window.onload = () => {
+            renderHomeNews();
             renderGameLists();
             renderTopupOptions();
         };
 
-        function renderGameLists() {
-            const homeList = document.getElementById('home-game-list');
-            const fullList = document.getElementById('full-game-list');
-
-            const itemHTML = (g) => `
-                <div onclick="openProduct(${g.id})" class="glass p-5 rounded-[2.5rem] cursor-pointer card-hover group">
-                    <div class="overflow-hidden rounded-[2rem] mb-4 border border-white/5 shadow-xl">
-                        <img src="${g.img}" alt="${g.name}" class="w-full aspect-square object-cover group-hover:rotate-3 group-hover:scale-110 transition-transform duration-700">
+        function renderHomeNews() {
+            const grid = document.getElementById('news-grid-home');
+            grid.innerHTML = news.map(n => `
+                <div class="news-card glass rounded-[2.5rem] overflow-hidden cursor-pointer group card-hover">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="${n.img}" class="w-full h-full object-cover">
+                        <span class="absolute top-4 left-4 bg-blue-600 text-[8px] font-bold uppercase tracking-widest px-3 py-1 rounded-full text-white">${n.tag}</span>
                     </div>
-                    <div class="text-center">
-                        <p class="font-black italic uppercase text-xs text-white tracking-widest">${g.name}</p>
+                    <div class="p-6">
+                        <p class="text-[8px] text-slate-500 font-bold mb-2 uppercase tracking-widest">${n.date}</p>
+                        <h4 class="text-lg font-black italic uppercase text-white leading-tight mb-4 group-hover:text-blue-400 transition-colors">${n.title}</h4>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">อ่านต่อ <i class="fas fa-chevron-right ml-1 text-[8px]"></i></span>
                     </div>
                 </div>
-            `;
+            `).join('');
+            
+            // For News-All page
+            const fullGrid = document.getElementById('full-news-list');
+            if(fullGrid) fullGrid.innerHTML = grid.innerHTML;
+        }
 
-            homeList.innerHTML = games.slice(0, 4).map(itemHTML).join('');
-            fullList.innerHTML = games.map(itemHTML).join('');
+        function renderGameLists() {
+            const itemHTML = (g) => `
+                <div onclick="openProduct(${g.id})" class="glass p-5 rounded-[2.5rem] cursor-pointer card-hover group">
+                    <div class="overflow-hidden rounded-[2rem] mb-4 border border-white/5">
+                        <img src="${g.img}" class="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <p class="text-center font-black italic uppercase text-xs text-white tracking-widest">${g.name}</p>
+                </div>
+            `;
+            document.getElementById('home-game-list').innerHTML = games.map(itemHTML).join('');
+            document.getElementById('full-game-list').innerHTML = games.map(itemHTML).join('');
         }
 
         function renderTopupOptions() {
             const amts = [100, 300, 500, 1000];
             document.getElementById('topup-options').innerHTML = amts.map(a => `
-                <div onclick="selectTopAmt(this, ${a})" class="top-amt glass p-10 rounded-[2rem] cursor-pointer border border-white/5 transition-all card-hover">
-                    <p class="text-2xl font-black italic text-white">${a.toLocaleString()} ฿</p>
+                <div onclick="selectTopAmt(this, ${a})" class="top-amt glass p-8 rounded-3xl cursor-pointer border border-white/5 transition-all text-center">
+                    <p class="text-2xl font-black italic text-white">${a} ฿</p>
                 </div>
             `).join('');
         }
@@ -346,34 +307,20 @@
         function openProduct(id) {
             const game = games.find(g => g.id === id);
             currentSelection.game = game;
-            currentSelection.pack = null;
-            currentSelection.method = null;
-
-            // Set SEO & Headings
             document.getElementById('game-title').innerText = game.name;
             document.getElementById('game-desc').innerText = game.desc;
             document.getElementById('game-thumb').src = game.img;
             document.getElementById('game-banner-img').src = game.banner;
-            
-            // Update Summary
             document.getElementById('sum-game').innerText = game.name;
-            document.getElementById('sum-pack').innerText = 'ยังไม่ได้เลือก';
-            document.getElementById('sum-price').innerText = '0.00 ฿';
-            document.getElementById('target-id').value = '';
             
-            // Render Packs with Icons
             const packGrid = document.getElementById('pack-grid');
             packGrid.innerHTML = game.packs.map(p => `
-                <div onclick="selectPkg(this, '${p.n}', ${p.p})" class="pkg-card glass p-6 rounded-3xl border-2 border-white/5 text-center cursor-pointer transition-all hover:border-blue-500/50 flex flex-col items-center">
-                    <img src="${game.packImg}" class="w-12 h-12 mb-4 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">
-                    <p class="font-bold text-slate-500 uppercase text-[9px] tracking-widest mb-1">${p.n}</p>
+                <div onclick="selectPkg(this, '${p.n}', ${p.p})" class="pkg-card glass p-6 rounded-3xl border-2 border-white/5 text-center cursor-pointer transition-all flex flex-col items-center">
+                    <img src="${game.packImg}" class="w-10 h-10 mb-4 opacity-80">
+                    <p class="font-bold text-slate-500 uppercase text-[8px] tracking-widest mb-1">${p.n}</p>
                     <p class="font-black text-xl text-white italic">${p.p} ฿</p>
                 </div>
             `).join('');
-
-            // Reset Methods
-            document.querySelectorAll('.method-card').forEach(c => c.classList.remove('method-selected'));
-
             showPage('product');
         }
 
@@ -398,18 +345,10 @@
         }
 
         function handlePurchase() {
-            const tid = document.getElementById('target-id').value;
-            if (!tid) return showToast('กรุณากรอก ID ผู้ใช้');
+            if (!document.getElementById('target-id').value) return showToast('กรุณากรอก ID ผู้ใช้');
             if (!currentSelection.pack) return showToast('กรุณาเลือกแพ็กเกจ');
             if (!currentSelection.method) return showToast('กรุณาเลือกวิธีชำระเงิน');
-
-            if (currentSelection.method === 'POINTS') {
-                if (!user.isLoggedIn) return showToast('กรุณาเข้าสู่ระบบก่อน');
-                if (user.points < currentSelection.pack.price) return showToast('พอยท์ไม่เพียงพอ');
-                simulatePaymentSuccess();
-            } else {
-                openQR(currentSelection.pack.price, currentSelection.method);
-            }
+            openQR(currentSelection.pack.price, currentSelection.method);
         }
 
         function handleTopup() {
@@ -420,15 +359,13 @@
 
         function openQR(amount, type) {
             document.getElementById('qr-amount').innerText = amount.toFixed(2) + ' ฿';
-            document.getElementById('qr-method-name').innerText = type === 'TOPUP' ? 'TOPUP' : type;
+            document.getElementById('qr-method-name').innerText = type;
             document.getElementById('modal-qr').classList.remove('hide');
         }
 
         function simulatePaymentSuccess() {
             const isTopup = !document.getElementById('page-topup').classList.contains('hide');
             closeModal('modal-qr');
-            showToast('ทำรายการสำเร็จ!', 'success');
-            
             if (isTopup) {
                 user.points += currentSelection.topupAmt;
                 updateUserUI();
@@ -438,36 +375,26 @@
                     user.points -= currentSelection.pack.price;
                     updateUserUI();
                 }
-                showReceipt();
+                showPage('home');
             }
-        }
-
-        function showReceipt() {
-            document.getElementById('rec-item').innerText = currentSelection.game.name + ' - ' + currentSelection.pack.name;
-            document.getElementById('rec-id').innerText = document.getElementById('target-id').value;
-            document.getElementById('rec-price').innerText = currentSelection.pack.price.toFixed(2) + ' ฿';
-            document.getElementById('modal-receipt').classList.remove('hide');
+            showToast('ทำรายการสำเร็จ!', 'success');
         }
 
         function login() {
-            user.isLoggedIn = true;
-            user.points = 1000;
+            user.isLoggedIn = true; user.points = 1000;
             document.getElementById('auth-area').classList.add('hide');
             document.getElementById('user-area').classList.remove('hide');
             updateUserUI();
-            showToast('เข้าสู่ระบบสำเร็จ!', 'success');
+            showToast('ยินดีต้อนรับกลับ!', 'success');
         }
 
-        function updateUserUI() {
-            document.getElementById('points-display').innerText = user.points.toLocaleString();
-        }
-
+        function updateUserUI() { document.getElementById('points-display').innerText = user.points.toLocaleString(); }
         function closeModal(id) { document.getElementById(id).classList.add('hide'); }
 
         function showToast(msg, type = 'error') {
             const container = document.getElementById('toast-container');
             const t = document.createElement('div');
-            t.className = `toast glass ${type==='success'?'border-green-500/50':'border-red-500/50'} text-white px-8 py-4 rounded-2xl mb-4 font-black italic uppercase text-[10px] shadow-2xl`;
+            t.className = `glass ${type==='success'?'border-green-500':'border-red-500'} text-white px-8 py-4 rounded-2xl mb-4 font-black italic uppercase text-[10px] shadow-2xl`;
             t.innerText = msg;
             container.appendChild(t);
             setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 3000);
