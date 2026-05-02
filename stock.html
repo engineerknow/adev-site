@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A DEV Pro - ERP & HR System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: 'Kanit', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-link.active { background-color: #1e293b; color: #60a5fa; border-right: 4px solid #3b82f6; }
+    </style>
+</head>
+<body class="bg-gray-50 text-slate-900">
+
+    <!-- Sidebar -->
+    <aside class="fixed left-0 top-0 h-screen w-64 bg-slate-900 text-white p-6 z-40 hidden md:block">
+        <div class="mb-10">
+            <h1 class="text-2xl font-bold tracking-wider text-blue-400">A<span class="text-white">DEV</span></h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest">Enterprise Edition v3.0</p>
+        </div>
+        
+        <nav class="space-y-1">
+            <p class="text-[10px] font-bold text-slate-500 mb-2 px-4 uppercase">เมนูหลัก</p>
+            <button onclick="showTab('dashboard')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium nav-link active" data-tab="dashboard">
+                <i class="fas fa-chart-pie w-5"></i> แผงควบคุม
+            </button>
+            <button onclick="showTab('inventory')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium nav-link" data-tab="inventory">
+                <i class="fas fa-boxes w-5"></i> คลังสินค้า
+            </button>
+            
+            <p class="text-[10px] font-bold text-slate-500 mb-2 mt-6 px-4 uppercase">การเงินและบุคลากร</p>
+            <button onclick="showTab('hr')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium nav-link" data-tab="hr">
+                <i class="fas fa-user-tie w-5"></i> ระบบพนักงาน (HR)
+            </button>
+            <button onclick="showTab('accounting')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium nav-link" data-tab="accounting">
+                <i class="fas fa-file-invoice-dollar w-5"></i> บัญชี/รายรับ-จ่าย
+            </button>
+            <button onclick="showTab('reports')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium nav-link" data-tab="reports">
+                <i class="fas fa-chart-line w-5"></i> รายงานวิเคราะห์
+            </button>
+
+            <div class="mt-10">
+                <button onclick="openScanner()" class="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-900/50">
+                    <i class="fas fa-qrcode"></i> สแกนเบิกสินค้า
+                </button>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="md:ml-64 p-4 md:p-8 min-h-screen">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h2 id="page-title" class="text-2xl font-bold text-slate-800">แผงควบคุม</h2>
+                <p id="current-date-display" class="text-sm text-slate-500"></p>
+            </div>
+            <div id="header-actions" class="flex gap-3">
+                <!-- Actions set by JS -->
+            </div>
+        </header>
+
+        <!-- Tab: Dashboard -->
+        <div id="dashboard" class="tab-content active">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase mb-1">จำนวนพนักงาน</p>
+                    <h3 id="stat-emp-count" class="text-2xl font-bold">0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase mb-1">สต็อกรวม</p>
+                    <h3 id="stat-stock-total" class="text-2xl font-bold">0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase mb-1">ยอดขายวันนี้</p>
+                    <h3 id="stat-daily-sales" class="text-2xl font-bold text-green-600">฿0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase mb-1">ภาระเงินเดือน</p>
+                    <h3 id="stat-payroll" class="text-2xl font-bold text-red-500">฿0</h3>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <h3 class="font-bold mb-4">พนักงานมาใหม่ล่าสุด</h3>
+                    <div id="recent-employees" class="space-y-4"></div>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <h3 class="font-bold mb-4">สินค้าขายดี</h3>
+                    <div id="top-selling" class="space-y-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: HR (Employee Management) -->
+        <div id="hr" class="tab-content">
+            <div class="mb-6 flex gap-4">
+                <div class="relative flex-1">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="search-emp" oninput="renderEmployees()" placeholder="ค้นชื่อพนักงาน, ตำแหน่ง..." class="w-full pl-12 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <select id="filter-dept" onchange="renderEmployees()" class="p-2.5 bg-white border border-slate-200 rounded-xl text-sm">
+                    <option value="">ทุกแผนก</option>
+                    <option value="Warehouse">คลังสินค้า</option>
+                    <option value="Accounting">บัญชี</option>
+                    <option value="Sales">ฝ่ายขาย</option>
+                    <option value="Management">บริหาร</option>
+                </select>
+            </div>
+            
+            <div id="employee-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Employee Cards JS -->
+            </div>
+        </div>
+
+        <!-- Tab: Inventory -->
+        <div id="inventory" class="tab-content">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-[10px] font-bold uppercase text-slate-500">
+                            <tr>
+                                <th class="px-6 py-4">SKU</th>
+                                <th class="px-6 py-4">ชื่อสินค้า</th>
+                                <th class="px-6 py-4">จำนวน</th>
+                                <th class="px-6 py-4">ทุน/ขาย</th>
+                                <th class="px-6 py-4">การจัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-tbody" class="divide-y divide-slate-50"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Accounting -->
+        <div id="accounting" class="tab-content">
+            <div id="acc-stats" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"></div>
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 text-[10px] font-bold uppercase text-slate-500">
+                        <tr>
+                            <th class="px-6 py-4">วันเวลา</th>
+                            <th class="px-6 py-4">ประเภท</th>
+                            <th class="px-6 py-4">รายการ</th>
+                            <th class="px-6 py-4">จำนวนเงิน</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accounting-tbody" class="divide-y divide-slate-50"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Reports -->
+        <div id="reports" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-3xl border border-slate-100">
+                    <h3 class="font-bold mb-4">งบประมาณเงินเดือนพนักงานรายแผนก</h3>
+                    <div id="dept-payroll-chart" class="space-y-4"></div>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100">
+                    <h3 class="font-bold mb-4">สรุปสถานะคลังสินค้า</h3>
+                    <div id="stock-summary-report" class="space-y-4"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: Employee (Add/Edit) -->
+    <div id="modal-employee" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-3xl overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 id="emp-modal-title" class="font-bold">ข้อมูลพนักงาน</h3>
+                <button onclick="closeModal('employee')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="employee-form" onsubmit="handleEmployeeSubmit(event)" class="p-6 space-y-4">
+                <input type="hidden" name="empId">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">ชื่อ-นามสกุล</label>
+                        <input type="text" name="name" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">ตำแหน่ง</label>
+                        <input type="text" name="role" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">แผนก</label>
+                        <select name="department" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                            <option value="Warehouse">คลังสินค้า</option>
+                            <option value="Accounting">บัญชี</option>
+                            <option value="Sales">ฝ่ายขาย</option>
+                            <option value="Management">บริหาร</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">เงินเดือน (฿)</label>
+                        <input type="number" name="salary" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">วันที่เริ่มงาน</label>
+                        <input type="date" name="startDate" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">เบอร์โทรศัพท์</label>
+                        <input type="text" name="phone" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-200">
+                    บันทึกข้อมูลพนักงาน
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: QR Scanner -->
+    <div id="modal-scanner" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold">สแกนเบิกสินค้า</h3>
+                <button onclick="closeScanner()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6">
+                <div id="qr-reader" class="w-full aspect-square bg-black rounded-2xl overflow-hidden"></div>
+                <div id="scan-result" class="mt-4 hidden p-4 bg-blue-50 rounded-xl border border-blue-100 animate-pulse">
+                    <p class="text-xs font-bold text-blue-600 mb-1">กำลังค้นหาข้อมูล...</p>
+                    <p id="scan-sku-found" class="font-bold"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Product (Add/Edit) -->
+    <div id="modal-product" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-3xl overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 id="prod-modal-title" class="font-bold">จัดการสินค้า</h3>
+                <button onclick="closeModal('product')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="product-form" onsubmit="handleProductSubmit(event)" class="p-6 space-y-4">
+                <input type="hidden" name="productId">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2 md:col-span-1">
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">SKU</label>
+                        <input type="text" name="sku" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    </div>
+                    <div class="col-span-2 md:col-span-1">
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">หมวดหมู่</label>
+                        <select name="category" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                            <option>Electronics</option>
+                            <option>Stationery</option>
+                            <option>Furniture</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">ชื่อสินค้า</label>
+                        <input type="text" name="name" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">จำนวน</label>
+                        <input type="number" name="stock" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">ขั้นต่ำ</label>
+                        <input type="number" name="min" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">ทุน</label>
+                        <input type="number" name="cost" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">ขาย</label>
+                        <input type="number" name="price" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-200">บันทึกสินค้า</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- Core State ---
+        let employees = [
+            { id: 1, name: "สมชาย ยิ่งใหญ่", role: "Manager", department: "Management", salary: 55000, startDate: "2023-01-15", phone: "081-222-3333", image: "https://i.pravatar.cc/150?u=1" },
+            { id: 2, name: "พรทิพย์ สต็อกดี", role: "Warehouse Lead", department: "Warehouse", salary: 32000, startDate: "2023-05-10", phone: "089-444-5555", image: "https://i.pravatar.cc/150?u=2" },
+            { id: 3, name: "วิชัย ใจบัญชี", role: "Accountant", department: "Accounting", salary: 28000, startDate: "2024-02-01", phone: "092-777-8888", image: "https://i.pravatar.cc/150?u=3" }
+        ];
+
+        let products = [
+            { id: 1, sku: "ELE-001", name: "PowerBank 20k", category: "Electronics", stock: 45, cost: 450, price: 890, min: 10 },
+            { id: 2, sku: "STA-001", name: "Paper A4 DoubleA", category: "Stationery", stock: 120, cost: 420, price: 550, min: 20 }
+        ];
+
+        let transactions = [
+            { id: 1, date: new Date().toISOString(), type: 'Expense', desc: 'เงินเดือนพนักงาน ประจำเดือน', amount: 115000 },
+            { id: 2, date: new Date().toISOString(), type: 'Revenue', desc: 'ขายสินค้าหน้าร้าน', amount: 3500 }
+        ];
+
+        let html5QrCode = null;
+
+        // --- Core Functions ---
+        function init() {
+            renderAll();
+            setInterval(() => {
+                document.getElementById('current-date-display').innerText = new Date().toLocaleString('th-TH');
+            }, 1000);
+            showTab('dashboard');
+        }
+
+        function renderAll() {
+            updateDashboardStats();
+            renderEmployees();
+            renderInventory();
+            renderAccounting();
+            renderReports();
+        }
+
+        function updateDashboardStats() {
+            const totalSalary = employees.reduce((acc, e) => acc + parseInt(e.salary), 0);
+            const stockTotal = products.reduce((acc, p) => acc + p.stock, 0);
+            const dailySales = transactions
+                .filter(t => t.type === 'Revenue' && new Date(t.date).toDateString() === new Date().toDateString())
+                .reduce((acc, t) => acc + t.amount, 0);
+
+            document.getElementById('stat-emp-count').innerText = employees.length;
+            document.getElementById('stat-stock-total').innerText = stockTotal;
+            document.getElementById('stat-daily-sales').innerText = `฿${dailySales.toLocaleString()}`;
+            document.getElementById('stat-payroll').innerText = `฿${totalSalary.toLocaleString()}`;
+
+            // Recent Employees
+            const recentEmpDiv = document.getElementById('recent-employees');
+            recentEmpDiv.innerHTML = employees.slice(-3).reverse().map(e => `
+                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl">
+                    <img src="${e.image}" class="w-10 h-10 rounded-full border">
+                    <div>
+                        <p class="text-xs font-bold">${e.name}</p>
+                        <p class="text-[10px] text-slate-400">${e.role} • ${e.department}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- HR Management Logic ---
+        function renderEmployees() {
+            const grid = document.getElementById('employee-grid');
+            const search = document.getElementById('search-emp').value.toLowerCase();
+            const dept = document.getElementById('filter-dept').value;
+
+            const filtered = employees.filter(e => {
+                const matchSearch = e.name.toLowerCase().includes(search) || e.role.toLowerCase().includes(search);
+                const matchDept = dept === "" || e.department === dept;
+                return matchSearch && matchDept;
+            });
+
+            grid.innerHTML = filtered.map(e => `
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                    <div class="flex justify-between items-start mb-4">
+                        <img src="${e.image}" class="w-16 h-16 rounded-2xl object-cover ring-2 ring-blue-50">
+                        <div class="flex gap-1">
+                            <button onclick="openEditEmployee(${e.id})" class="w-8 h-8 bg-slate-50 text-slate-400 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"><i class="fas fa-edit text-xs"></i></button>
+                            <button onclick="deleteEmployee(${e.id})" class="w-8 h-8 bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"><i class="fas fa-trash text-xs"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800">${e.name}</h4>
+                        <p class="text-xs text-blue-600 font-bold mb-3">${e.role}</p>
+                        <div class="space-y-2 text-[11px] text-slate-500">
+                            <div class="flex items-center gap-2"><i class="fas fa-building w-4"></i> ${e.department}</div>
+                            <div class="flex items-center gap-2"><i class="fas fa-wallet w-4"></i> ฿${parseInt(e.salary).toLocaleString()} / เดือน</div>
+                            <div class="flex items-center gap-2"><i class="fas fa-calendar-alt w-4"></i> เริ่มงาน: ${new Date(e.startDate).toLocaleDateString('th-TH')}</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-50 flex items-center gap-2 text-xs text-slate-400 font-medium">
+                        <i class="fas fa-phone"></i> ${e.phone}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openAddEmployee() {
+            const form = document.getElementById('employee-form');
+            form.reset();
+            form.empId.value = "";
+            document.getElementById('emp-modal-title').innerText = "เพิ่มพนักงานใหม่";
+            openModal('employee');
+        }
+
+        function openEditEmployee(id) {
+            const e = employees.find(x => x.id === id);
+            const form = document.getElementById('employee-form');
+            form.empId.value = e.id;
+            form.name.value = e.name;
+            form.role.value = e.role;
+            form.department.value = e.department;
+            form.salary.value = e.salary;
+            form.startDate.value = e.startDate;
+            form.phone.value = e.phone;
+            document.getElementById('emp-modal-title').innerText = "แก้ไขข้อมูลพนักงาน";
+            openModal('employee');
+        }
+
+        function handleEmployeeSubmit(event) {
+            event.preventDefault();
+            const fd = new FormData(event.target);
+            const id = fd.get('empId');
+            const data = {
+                name: fd.get('name'),
+                role: fd.get('role'),
+                department: fd.get('department'),
+                salary: fd.get('salary'),
+                startDate: fd.get('startDate'),
+                phone: fd.get('phone')
+            };
+
+            if (id) {
+                const idx = employees.findIndex(e => e.id == id);
+                employees[idx] = { ...employees[idx], ...data };
+            } else {
+                employees.push({ id: Date.now(), ...data, image: `https://i.pravatar.cc/150?u=${Date.now()}` });
+            }
+
+            closeModal('employee');
+            renderAll();
+        }
+
+        function deleteEmployee(id) {
+            if(confirm("ยืนยันการลบข้อมูลพนักงานคนนี้?")) {
+                employees = employees.filter(e => e.id !== id);
+                renderAll();
+            }
+        }
+
+        // --- Inventory Management ---
+        function renderInventory() {
+            const tbody = document.getElementById('inventory-tbody');
+            tbody.innerHTML = products.map(p => `
+                <tr class="hover:bg-slate-50">
+                    <td class="px-6 py-4 font-mono font-bold text-blue-600">${p.sku}</td>
+                    <td class="px-6 py-4 font-bold">${p.name}</td>
+                    <td class="px-6 py-4">
+                        <span class="${p.stock <= p.min ? 'text-red-500 font-bold' : ''}">${p.stock}</span>
+                    </td>
+                    <td class="px-6 py-4 text-xs">
+                        ทุน: ฿${p.cost} <br> <span class="text-green-600 font-bold">ขาย: ฿${p.price}</span>
+                    </td>
+                    <td class="px-6 py-4 flex gap-2">
+                        <button onclick="openEditProduct(${p.id})" class="p-2 bg-slate-100 rounded-lg hover:bg-slate-200"><i class="fas fa-edit"></i></button>
+                        <button onclick="quickAction(${p.id}, 'sell')" class="p-2 bg-green-50 text-green-600 rounded-lg"><i class="fas fa-minus"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openAddProduct() {
+            document.getElementById('product-form').reset();
+            document.getElementById('product-form').productId.value = "";
+            document.getElementById('prod-modal-title').innerText = "เพิ่มสินค้าใหม่";
+            openModal('product');
+        }
+
+        function openEditProduct(id) {
+            const p = products.find(x => x.id === id);
+            const f = document.getElementById('product-form');
+            f.productId.value = p.id;
+            f.sku.value = p.sku;
+            f.name.value = p.name;
+            f.category.value = p.category;
+            f.stock.value = p.stock;
+            f.min.value = p.min;
+            f.cost.value = p.cost;
+            f.price.value = p.price;
+            document.getElementById('prod-modal-title').innerText = "แก้ไขสินค้า";
+            openModal('product');
+        }
+
+        function handleProductSubmit(e) {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const id = fd.get('productId');
+            const data = {
+                sku: fd.get('sku'),
+                name: fd.get('name'),
+                category: fd.get('category'),
+                stock: parseInt(fd.get('stock')),
+                min: parseInt(fd.get('min')),
+                cost: parseInt(fd.get('cost')),
+                price: parseInt(fd.get('price'))
+            };
+
+            if(id) {
+                const idx = products.findIndex(p => p.id == id);
+                products[idx] = { ...products[idx], ...data };
+            } else {
+                products.push({ id: Date.now(), ...data });
+            }
+            closeModal('product');
+            renderAll();
+        }
+
+        function quickAction(id, type) {
+            const p = products.find(x => x.id === id);
+            if(type === 'sell' && p.stock > 0) {
+                p.stock--;
+                transactions.push({ id: Date.now(), date: new Date().toISOString(), type: 'Revenue', desc: `ขายด่วน: ${p.sku}`, amount: p.price });
+            }
+            renderAll();
+        }
+
+        // --- Accounting & Reports ---
+        function renderAccounting() {
+            const stats = document.getElementById('acc-stats');
+            const rev = transactions.filter(t => t.type === 'Revenue').reduce((acc, t) => acc + t.amount, 0);
+            const exp = transactions.filter(t => t.type === 'Expense').reduce((acc, t) => acc + t.amount, 0);
+            
+            stats.innerHTML = `
+                <div class="bg-green-50 p-6 rounded-3xl border border-green-100"><p class="text-[10px] font-bold text-green-600 uppercase">รายรับ</p><p class="text-2xl font-bold">฿${rev.toLocaleString()}</p></div>
+                <div class="bg-red-50 p-6 rounded-3xl border border-red-100"><p class="text-[10px] font-bold text-red-600 uppercase">รายจ่าย</p><p class="text-2xl font-bold">฿${exp.toLocaleString()}</p></div>
+                <div class="bg-blue-50 p-6 rounded-3xl border border-blue-100"><p class="text-[10px] font-bold text-blue-600 uppercase">คงเหลือ</p><p class="text-2xl font-bold">฿${(rev-exp).toLocaleString()}</p></div>
+            `;
+
+            document.getElementById('accounting-tbody').innerHTML = [...transactions].reverse().map(t => `
+                <tr>
+                    <td class="px-6 py-4 text-xs text-slate-400">${new Date(t.date).toLocaleString('th-TH')}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${t.type==='Revenue'?'bg-green-100 text-green-600':'bg-red-100 text-red-600'}">${t.type==='Revenue'?'รับ':'จ่าย'}</span></td>
+                    <td class="px-6 py-4 font-medium">${t.desc}</td>
+                    <td class="px-6 py-4 font-bold ${t.type==='Revenue'?'text-green-600':'text-red-600'}">${t.type==='Revenue'?'+':'-'}฿${t.amount.toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderReports() {
+            const depts = [...new Set(employees.map(e => e.department))];
+            const payrollDiv = document.getElementById('dept-payroll-chart');
+            const totalPayroll = employees.reduce((acc, e) => acc + parseInt(e.salary), 0);
+
+            payrollDiv.innerHTML = depts.map(d => {
+                const deptSum = employees.filter(e => e.department === d).reduce((acc, e) => acc + parseInt(e.salary), 0);
+                const perc = totalPayroll > 0 ? (deptSum / totalPayroll) * 100 : 0;
+                return `
+                    <div>
+                        <div class="flex justify-between text-xs font-bold mb-1"><span>${d}</span><span>฿${deptSum.toLocaleString()}</span></div>
+                        <div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-indigo-500" style="width:${perc}%"></div></div>
+                    </div>
+                `;
+            }).join('');
+
+            const stockRep = document.getElementById('stock-summary-report');
+            const totalStockVal = products.reduce((acc, p) => acc + (p.stock * p.cost), 0);
+            stockRep.innerHTML = `
+                <div class="p-4 bg-slate-50 rounded-2xl">
+                    <p class="text-xs text-slate-500 font-bold mb-1">มูลค่าสินค้าในคลัง (ทุน)</p>
+                    <p class="text-2xl font-bold">฿${totalStockVal.toLocaleString()}</p>
+                </div>
+                <div class="p-4 bg-orange-50 rounded-2xl">
+                    <p class="text-xs text-orange-600 font-bold mb-1">สินค้าที่ต้องสั่งเพิ่ม</p>
+                    <p class="text-xl font-bold">${products.filter(p => p.stock <= p.min).length} รายการ</p>
+                </div>
+            `;
+        }
+
+        // --- QR Logic ---
+        function openScanner() {
+            openModal('scanner');
+            html5QrCode = new Html5Qrcode("qr-reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decodedText) => {
+                document.getElementById('scan-result').classList.remove('hidden');
+                document.getElementById('scan-sku-found').innerText = "พบ SKU: " + decodedText;
+                setTimeout(() => {
+                    const p = products.find(x => x.sku === decodedText);
+                    if(p) {
+                        quickAction(p.id, 'sell');
+                        alert("เบิกสินค้า " + p.name + " สำเร็จ");
+                    } else {
+                        alert("ไม่พบสินค้าในระบบ");
+                    }
+                    closeScanner();
+                }, 1000);
+            });
+        }
+
+        function closeScanner() {
+            if(html5QrCode) html5QrCode.stop().then(() => closeModal('scanner'));
+            else closeModal('scanner');
+        }
+
+        // --- UI Helpers ---
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.toggle('active', el.dataset.tab === tabId));
+
+            const actions = document.getElementById('header-actions');
+            if(tabId === 'hr') {
+                actions.innerHTML = `<button onclick="openAddEmployee()" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-blue-200"><i class="fas fa-plus mr-2"></i> เพิ่มพนักงาน</button>`;
+            } else if (tabId === 'inventory') {
+                actions.innerHTML = `<button onclick="openAddProduct()" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-blue-200"><i class="fas fa-plus mr-2"></i> เพิ่มสินค้า</button>`;
+            } else {
+                actions.innerHTML = `<button onclick="alert('Export Report...')" class="bg-slate-800 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg"><i class="fas fa-download mr-2"></i> ส่งออกข้อมูล</button>`;
+            }
+            document.getElementById('page-title').innerText = document.querySelector(`.nav-link[data-tab="${tabId}"]`).innerText;
+        }
+
+        function openModal(id) { document.getElementById(`modal-${id}`).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(`modal-${id}`).classList.add('hidden'); }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

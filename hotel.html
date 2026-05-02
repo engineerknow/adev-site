@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A DEV - Premium Hotel Booking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kanit', sans-serif; }
+        .view-step { display: none; }
+        .view-step.active { display: block; }
+        .hero-gradient { background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&q=80&w=1600'); background-size: cover; background-position: center; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+            <a href="javascript:void(0)" onclick="showStep('home')" class="text-2xl font-bold tracking-tight text-indigo-950">
+                LUX<span class="text-amber-600">STAY</span>
+            </a>
+            <div class="hidden md:flex gap-8 text-sm font-medium">
+                <a href="#" class="hover:text-amber-600">ค้นหาที่พัก</a>
+                <a href="#" class="hover:text-amber-600">โปรโมชั่น</a>
+                <a href="#" class="hover:text-amber-600">ติดต่อเรา</a>
+            </div>
+            <button class="bg-indigo-950 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-indigo-900 transition-all">
+                เข้าสู่ระบบ
+            </button>
+        </div>
+    </nav>
+
+    <!-- STEP 1: HOME/SEARCH -->
+    <div id="step-home" class="view-step active">
+        <section class="hero-gradient h-[500px] flex items-center justify-center text-center px-4">
+            <div class="max-w-3xl">
+                <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">ค้นหาประสบการณ์การพักผ่อนที่เหนือระดับ</h1>
+                <p class="text-white/90 text-lg mb-8">จองโรงแรม รีสอร์ท และที่พักส่วนตัวทั่วโลก พร้อมข้อเสนอพิเศษสำหรับคุณ</p>
+                
+                <!-- Search Bar -->
+                <div class="bg-white p-2 rounded-2xl md:rounded-full shadow-2xl flex flex-col md:flex-row gap-2">
+                    <div class="flex-1 flex items-center px-6 py-3 border-b md:border-b-0 md:border-r border-slate-100">
+                        <i class="fas fa-map-marker-alt text-amber-600 mr-3"></i>
+                        <input type="text" placeholder="คุณอยากไปที่ไหน?" class="w-full outline-none text-sm">
+                    </div>
+                    <div class="flex-1 flex items-center px-6 py-3 border-b md:border-b-0 md:border-r border-slate-100">
+                        <i class="fas fa-calendar-alt text-amber-600 mr-3"></i>
+                        <input type="text" placeholder="วันที่เช็คอิน - เช็คเอาท์" class="w-full outline-none text-sm">
+                    </div>
+                    <button class="bg-amber-600 text-white px-10 py-3 rounded-xl md:rounded-full font-bold hover:bg-amber-700 transition-all">
+                        ค้นหา
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Hotels -->
+        <section class="max-w-7xl mx-auto px-4 py-20">
+            <div class="flex justify-between items-end mb-10">
+                <div>
+                    <h2 class="text-3xl font-bold text-indigo-950">โรงแรมยอดนิยม</h2>
+                    <p class="text-slate-500">ที่พักที่ได้รับการจัดอันดับสูงสุดจากแขกของเรา</p>
+                </div>
+                <a href="#" class="text-amber-600 font-semibold border-b-2 border-amber-600">ดูทั้งหมด</a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="hotel-list">
+                <!-- Rendered by JS -->
+            </div>
+        </section>
+    </div>
+
+    <!-- STEP 2: ROOM DETAILS & BOOKING -->
+    <div id="step-details" class="view-step py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <button onclick="showStep('home')" class="mb-8 text-slate-500 hover:text-indigo-950 flex items-center gap-2">
+                <i class="fas fa-chevron-left"></i> กลับไปหน้าค้นหา
+            </button>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <div class="lg:col-span-2">
+                    <img id="detail-img" src="" class="w-full h-[450px] object-cover rounded-3xl mb-8 shadow-lg">
+                    <h2 id="detail-name" class="text-4xl font-bold text-indigo-950 mb-2"></h2>
+                    <p id="detail-location" class="text-slate-500 mb-6 flex items-center gap-2">
+                        <i class="fas fa-map-marker-alt text-amber-600"></i> 
+                    </p>
+                    
+                    <div class="border-y border-slate-200 py-8 mb-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="text-center">
+                            <i class="fas fa-wifi text-2xl text-slate-400 mb-2"></i>
+                            <p class="text-xs font-medium">Free Wi-Fi</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-swimming-pool text-2xl text-slate-400 mb-2"></i>
+                            <p class="text-xs font-medium">Pool</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-utensils text-2xl text-slate-400 mb-2"></i>
+                            <p class="text-xs font-medium">Breakfast</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-dumbbell text-2xl text-slate-400 mb-2"></i>
+                            <p class="text-xs font-medium">Gym</p>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-4">รายละเอียดที่พัก</h3>
+                    <p class="text-slate-600 leading-relaxed mb-8">
+                        สัมผัสประสบการณ์การพักผ่อนระดับ 5 ดาว พร้อมสิ่งอำนวยความสะดวกครบครัน ห้องพักได้รับการออกแบบอย่างประณีตเพื่อความสบายสูงสุดของคุณ 
+                        ตั้งอยู่ใจกลางย่านที่เงียบสงบแต่สะดวกสบายในการเดินทางไปยังสถานที่ท่องเที่ยวสำคัญ
+                    </p>
+                </div>
+
+                <!-- Booking Card -->
+                <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-xl h-fit sticky top-28">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <span id="detail-price" class="text-3xl font-bold text-amber-600"></span>
+                            <span class="text-slate-400 text-sm"> / คืน</span>
+                        </div>
+                        <div class="text-amber-500 text-sm">
+                            <i class="fas fa-star"></i> 4.9 (120 รีวิว)
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 mb-8">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">วันที่เข้าพัก</label>
+                            <input type="date" value="2024-05-10" class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">จำนวนแขก</label>
+                            <select class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 outline-none">
+                                <option>ผู้ใหญ่ 2 ท่าน</option>
+                                <option>ผู้ใหญ่ 1 ท่าน</option>
+                                <option>ครอบครัว (ผู้ใหญ่ 2 เด็ก 1)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 mb-8 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">ค่าห้องพัก (2 คืน)</span>
+                            <span id="calc-subtotal" class="font-medium"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">ภาษีและค่าธรรมเนียม</span>
+                            <span class="font-medium">฿450.00</span>
+                        </div>
+                        <div class="flex justify-between pt-3 border-t font-bold text-lg text-indigo-950">
+                            <span>รวมทั้งหมด</span>
+                            <span id="calc-total"></span>
+                        </div>
+                    </div>
+
+                    <button onclick="confirmBooking()" class="w-full bg-indigo-950 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all">
+                        จองตอนนี้
+                    </button>
+                    <p class="text-center text-xs text-slate-400 mt-4">คุณยังไม่ถูกเรียกเก็บเงินในขั้นตอนนี้</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 3: SUCCESS -->
+    <div id="step-success" class="view-step py-24 text-center">
+        <div class="max-w-md mx-auto px-6">
+            <div class="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8 text-4xl shadow-inner">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-indigo-950 mb-3">การจองของคุณสำเร็จแล้ว!</h2>
+            <p class="text-slate-500 mb-10">เราได้ส่งรายละเอียดการจองและใบยืนยันไปที่อีเมลของคุณเรียบร้อยแล้ว</p>
+            
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm text-left mb-10">
+                <div class="flex justify-between mb-4 pb-4 border-b border-slate-50">
+                    <span class="text-slate-400 text-sm">หมายเลขการจอง</span>
+                    <span class="font-bold text-indigo-950">#LS-998234</span>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">เช็คอิน:</span>
+                        <span class="font-medium">10 พ.ค. 2024</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">ที่พัก:</span>
+                        <span id="success-hotel-name" class="font-medium text-right ml-4"></span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="showStep('home')" class="w-full border-2 border-indigo-950 text-indigo-950 py-4 rounded-xl font-bold hover:bg-indigo-950 hover:text-white transition-all">
+                กลับหน้าหลัก
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const hotels = [
+            { id: 1, name: "The Azure Resort & Spa", location: "ภูเก็ต, ประเทศไทย", price: 5900, img: "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&q=80&w=800" },
+            { id: 2, name: "Mountain View Pavilion", location: "เชียงใหม่, ประเทศไทย", price: 3200, img: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=800" },
+            { id: 3, name: "Urban Luxury Suites", location: "กรุงเทพฯ, ประเทศไทย", price: 4500, img: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800" },
+            { id: 4, name: "Serene Beach Villa", location: "เกาะสมุย, ประเทศไทย", price: 8900, img: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=800" },
+            { id: 5, name: "Pine Tree Cottage", location: "เขาใหญ่, ประเทศไทย", price: 2800, img: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=800" },
+            { id: 6, name: "The Grand Heritage", location: "อยุธยา, ประเทศไทย", price: 3800, img: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&q=80&w=800" }
+        ];
+
+        let selectedHotel = null;
+
+        function init() {
+            renderHotels();
+        }
+
+        function renderHotels() {
+            const list = document.getElementById('hotel-list');
+            list.innerHTML = hotels.map(hotel => `
+                <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all cursor-pointer group" onclick="viewDetails(${hotel.id})">
+                    <div class="h-64 overflow-hidden relative">
+                        <img src="${hotel.img}" alt="${hotel.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-amber-600 shadow-sm">
+                            <i class="fas fa-star"></i> 4.9
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-lg font-bold text-indigo-950 mb-1 group-hover:text-amber-600 transition-colors">${hotel.name}</h3>
+                        <p class="text-slate-400 text-sm mb-4 flex items-center gap-1">
+                            <i class="fas fa-map-marker-alt text-xs"></i> ${hotel.location}
+                        </p>
+                        <div class="flex justify-between items-center pt-4 border-t border-slate-50">
+                            <div>
+                                <span class="text-xl font-bold text-indigo-950">฿${hotel.price.toLocaleString()}</span>
+                                <span class="text-slate-400 text-xs"> / คืน</span>
+                            </div>
+                            <span class="text-amber-600 text-xs font-bold flex items-center">จองเลย <i class="fas fa-arrow-right ml-1"></i></span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewDetails(id) {
+            selectedHotel = hotels.find(h => h.id === id);
+            document.getElementById('detail-img').src = selectedHotel.img;
+            document.getElementById('detail-name').innerText = selectedHotel.name;
+            document.getElementById('detail-location').innerHTML = `<i class="fas fa-map-marker-alt text-amber-600"></i> ${selectedHotel.location}`;
+            document.getElementById('detail-price').innerText = `฿${selectedHotel.price.toLocaleString()}`;
+            
+            const subtotal = selectedHotel.price * 2;
+            document.getElementById('calc-subtotal').innerText = `฿${subtotal.toLocaleString()}`;
+            document.getElementById('calc-total').innerText = `฿${(subtotal + 450).toLocaleString()}`;
+            
+            showStep('details');
+        }
+
+        function confirmBooking() {
+            document.getElementById('success-hotel-name').innerText = selectedHotel.name;
+            showStep('success');
+        }
+
+        function showStep(step) {
+            document.querySelectorAll('.view-step').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step-${step}`).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

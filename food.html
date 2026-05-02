@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A DEV Food Demo - Smart Business Solution</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-link.active { background-color: #4f46e5; color: white; border-radius: 12px; shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .customer-view { background-color: #fff; max-width: 480px; margin: 0 auto; min-height: 100vh; }
+        .stat-card { transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-4px); }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <!-- Role Switcher -->
+    <div class="fixed bottom-6 right-6 z-[300] no-print">
+        <div class="bg-slate-900/90 backdrop-blur text-white p-2 rounded-2xl shadow-2xl flex gap-2 border border-white/10">
+            <button onclick="toggleView('merchant')" id="btn-merchant" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 transition-all">แผงควบคุมร้านค้า</button>
+            <button onclick="toggleView('customer')" id="btn-customer" class="px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-700 transition-all">จำลองลูกค้าสแกน</button>
+        </div>
+    </div>
+
+    <!-- MERCHANT VIEW -->
+    <div id="merchant-view" class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="fixed inset-y-0 left-0 w-64 bg-white border-r z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 no-print">
+            <div class="p-6">
+                <div class="flex items-center gap-3 text-indigo-600 mb-10">
+                    <div class="p-2 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200">
+                        <i class="fas fa-chart-line text-xl"></i>
+                    </div>
+                    <h1 class="text-xl font-bold leading-none text-slate-800">A dev food Demo<br><span class="text-indigo-400 text-[10px] tracking-widest font-normal uppercase">Professional</span></h1>
+                </div>
+                <nav class="space-y-1">
+                    <p class="px-4 text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-tighter">หน้าหลัก</p>
+                    <button onclick="switchTab('dashboard')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all active" data-tab="dashboard">
+                        <i class="fas fa-th-large w-5"></i> สรุปบัญชีภาพรวม
+                    </button>
+                    <button onclick="switchTab('orders')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all" data-tab="orders">
+                        <i class="fas fa-bell w-5"></i> รับออเดอร์ลูกค้า <span id="order-badge" class="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full hidden">0</span>
+                    </button>
+                    
+                    <p class="px-4 text-[10px] font-bold text-slate-400 uppercase mt-6 mb-2 tracking-tighter">การเงินและคลัง</p>
+                    <button onclick="switchTab('pos')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all" data-tab="pos">
+                        <i class="fas fa-shopping-cart w-5"></i> ขายหน้าร้าน (POS)
+                    </button>
+                    <button onclick="switchTab('expenses')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all" data-tab="expenses">
+                        <i class="fas fa-file-invoice-dollar w-5"></i> บันทึกรายจ่าย
+                    </button>
+                    <button onclick="switchTab('inventory')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all" data-tab="inventory">
+                        <i class="fas fa-boxes-stacked w-5"></i> คลังสินค้า/บริการ
+                    </button>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 md:ml-64 p-4 md:p-8">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 no-print">
+                <div>
+                    <h2 id="tab-title" class="text-2xl font-bold text-slate-800">สรุปบัญชีภาพรวม</h2>
+                    <p class="text-sm text-slate-400">ข้อมูลอัปเดตล่าสุด ณ <span id="live-time"></span></p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="window.print()" class="bg-white border text-slate-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-slate-50 transition-all">
+                        <i class="fas fa-download"></i> ส่งออกรายงาน
+                    </button>
+                </div>
+            </header>
+
+            <!-- TAB: Dashboard -->
+            <div id="dashboard" class="tab-content active space-y-6">
+                <!-- Stat Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="stat-card bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-2xl"><i class="fas fa-hand-holding-dollar text-xl"></i></div>
+                            <span class="text-xs font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg">+12.5%</span>
+                        </div>
+                        <p class="text-slate-400 text-sm font-medium">รายได้รวม (เดือนนี้)</p>
+                        <h3 class="text-3xl font-bold text-slate-800 mt-1" id="dash-revenue">฿0.00</h3>
+                    </div>
+                    <div class="stat-card bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-rose-50 text-rose-600 rounded-2xl"><i class="fas fa-wallet text-xl"></i></div>
+                        </div>
+                        <p class="text-slate-400 text-sm font-medium">รายจ่ายรวม (เดือนนี้)</p>
+                        <h3 class="text-3xl font-bold text-slate-800 mt-1" id="dash-expense">฿0.00</h3>
+                    </div>
+                    <div class="stat-card bg-indigo-600 p-6 rounded-3xl shadow-lg shadow-indigo-100">
+                        <div class="flex justify-between items-start mb-4 text-white/50">
+                            <div class="p-3 bg-white/10 rounded-2xl text-white"><i class="fas fa-coins text-xl"></i></div>
+                        </div>
+                        <p class="text-indigo-100 text-sm font-medium">กำไรสุทธิ</p>
+                        <h3 class="text-3xl font-bold text-white mt-1" id="dash-profit">฿0.00</h3>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
+                    <div class="p-6 border-b flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800">รายการเดินบัญชีล่าสุด</h3>
+                        <button class="text-indigo-600 text-sm font-bold">ดูทั้งหมด</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-slate-400 uppercase text-[10px] font-bold tracking-widest">
+                                <tr>
+                                    <th class="p-4">วันที่/เวลา</th>
+                                    <th class="p-4">ประเภท</th>
+                                    <th class="p-4">รายการ</th>
+                                    <th class="p-4 text-right">จำนวนเงิน</th>
+                                    <th class="p-4">สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transaction-list" class="divide-y divide-slate-50">
+                                <!-- Dynamic transactions -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Orders (Same as before but improved) -->
+            <div id="orders" class="tab-content space-y-4">
+                <div id="incoming-orders-container" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+                <div id="no-orders" class="text-center py-20 text-slate-400 bg-white rounded-3xl border border-dashed">
+                    <i class="fas fa-clock text-4xl mb-3 block"></i>
+                    <p>ยังไม่มีคำสั่งซื้อใหม่จากลูกค้าสแกน</p>
+                </div>
+            </div>
+
+            <!-- TAB: POS -->
+            <div id="pos" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="bg-white p-4 rounded-2xl border shadow-sm flex gap-4">
+                            <div class="relative flex-1">
+                                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                                <input type="text" placeholder="ค้นหาสินค้าหรือรหัส..." class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border-0 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-bold">เครื่องดื่ม</button>
+                                <button class="px-4 py-2 bg-slate-100 rounded-xl text-xs font-bold">อาหาร</button>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border h-fit">
+                            <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4" id="pos-product-grid"></div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-1">
+                        <div class="bg-white p-6 rounded-3xl shadow-lg border border-indigo-50 sticky top-8">
+                            <div class="flex items-center gap-2 mb-6">
+                                <i class="fas fa-user-circle text-2xl text-slate-200"></i>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase">ลูกค้าทั่วไป</p>
+                                    <p class="text-sm font-bold text-slate-700">Walk-in Customer</p>
+                                </div>
+                            </div>
+                            <div id="pos-cart" class="space-y-3 mb-6 min-h-[150px]"></div>
+                            <div class="border-t border-dashed pt-4 space-y-3">
+                                <div class="flex justify-between text-sm text-slate-400">
+                                    <span>ยอดรวม</span>
+                                    <span id="pos-subtotal">฿0.00</span>
+                                </div>
+                                <div class="flex justify-between text-sm text-slate-400">
+                                    <span>ภาษี (7%)</span>
+                                    <span id="pos-tax">฿0.00</span>
+                                </div>
+                                <div class="flex justify-between font-bold text-xl pt-2 border-t text-slate-800">
+                                    <span>ยอดชำระสุทธิ</span>
+                                    <span id="pos-total" class="text-indigo-600">฿0.00</span>
+                                </div>
+                                <button onclick="checkoutPOS()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold mt-4 shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
+                                    <i class="fas fa-check-circle"></i> ยืนยันการรับเงิน
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Expenses -->
+            <div id="expenses" class="tab-content space-y-4">
+                <div class="bg-white p-6 rounded-3xl border shadow-sm">
+                    <h3 class="font-bold mb-4">ลงบันทึกรายจ่ายสำนักงาน/ร้านค้า</h3>
+                    <form onsubmit="saveExpense(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        <div class="md:col-span-2">
+                            <label class="text-[10px] font-bold text-slate-400 mb-1 block uppercase">รายการรายจ่าย</label>
+                            <input type="text" name="name" required placeholder="เช่น ค่าน้ำ, ค่าไฟ, จ่ายซัพพลายเออร์" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 mb-1 block uppercase">หมวดหมู่</label>
+                            <select name="category" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                                <option value="Utility">สาธารณูปโภค</option>
+                                <option value="Salary">เงินเดือน</option>
+                                <option value="Stock">สั่งของเข้าร้าน</option>
+                                <option value="Marketing">การตลาด</option>
+                                <option value="Other">อื่นๆ</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 mb-1 block uppercase">จำนวนเงิน</label>
+                            <input type="number" name="amount" required step="0.01" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                        </div>
+                        <div class="md:col-span-4 flex justify-end">
+                            <button type="submit" class="bg-slate-800 text-white px-8 py-3 rounded-xl font-bold text-sm">บันทึกรายจ่าย</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TAB: Inventory -->
+            <div id="inventory" class="tab-content space-y-4">
+                <div class="flex justify-between items-center bg-white p-4 rounded-2xl border">
+                    <h3 class="font-bold">คลังสินค้าและบริการ</h3>
+                    <button onclick="openModal('inventory')" class="bg-indigo-600 text-white px-6 py-2 rounded-xl text-sm font-bold shadow-lg shadow-indigo-100">+ เพิ่มรายการใหม่</button>
+                </div>
+                <div class="bg-white rounded-3xl border overflow-hidden shadow-sm">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-slate-400 uppercase text-[10px] font-bold tracking-widest">
+                            <tr>
+                                <th class="p-4">รูปภาพ</th>
+                                <th class="p-4">ชื่อสินค้า</th>
+                                <th class="p-4">หมวดหมู่</th>
+                                <th class="p-4">ราคา</th>
+                                <th class="p-4">สต็อก</th>
+                                <th class="p-4">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-list" class="divide-y divide-slate-50"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- CUSTOMER VIEW (Simulator - Same logic) -->
+    <div id="customer-view" class="customer-view hidden shadow-2xl relative overflow-hidden flex flex-col">
+        <div class="bg-gradient-to-br from-indigo-600 to-violet-700 p-8 text-white rounded-b-[50px] shadow-2xl">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h1 class="text-2xl font-bold">A DEV Food demo Cafe</h1>
+                    <p class="text-xs opacity-70">ยินดีต้อนรับสู่ระบบสั่งซื้อด้วยตนเอง</p>
+                </div>
+                <div class="bg-white/20 p-2 rounded-2xl"><i class="fas fa-qrcode text-2xl"></i></div>
+            </div>
+            <div class="mt-6 flex gap-3">
+                <span class="bg-white/20 px-4 py-1.5 rounded-full text-[10px] backdrop-blur-sm border border-white/10 font-bold">TABLE #05</span>
+                <span class="bg-white/20 px-4 py-1.5 rounded-full text-[10px] backdrop-blur-sm border border-white/10 font-bold">FREE WIFI</span>
+            </div>
+        </div>
+
+        <div class="flex gap-4 p-4 overflow-x-auto no-scrollbar whitespace-nowrap mt-4">
+            <button class="bg-indigo-600 text-white px-6 py-2.5 rounded-2xl text-sm font-bold shadow-lg shadow-indigo-100">ทั้งหมด</button>
+            <button class="bg-slate-50 text-slate-400 px-6 py-2.5 rounded-2xl text-sm font-bold hover:bg-indigo-50 hover:text-indigo-600 transition-all">เครื่องดื่ม</button>
+            <button class="bg-slate-50 text-slate-400 px-6 py-2.5 rounded-2xl text-sm font-bold hover:bg-indigo-50 hover:text-indigo-600 transition-all">อาหารว่าง</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-6 pb-40" id="customer-menu-grid"></div>
+
+        <div id="customer-cart-float" class="fixed bottom-24 left-6 right-6 max-w-[432px] mx-auto bg-white border border-indigo-50 shadow-[0_20px_50px_rgba(79,70,229,0.15)] rounded-[32px] p-6 transform translate-y-64 transition-all duration-500 z-50">
+            <div class="flex justify-between items-center mb-5">
+                <div>
+                    <h4 class="font-bold text-slate-800">รายการสั่งซื้อของคุณ</h4>
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest" id="cust-cart-count">0 ITEMS</p>
+                </div>
+                <button onclick="clearCustCart()" class="text-xs font-bold text-rose-500 bg-rose-50 px-3 py-1 rounded-lg">ล้างตะกร้า</button>
+            </div>
+            <div id="cust-cart-items" class="max-h-48 overflow-y-auto space-y-3 mb-6 text-sm divide-y divide-slate-50"></div>
+            <div class="flex justify-between items-center border-t border-dashed pt-5">
+                <div>
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">ยอดสุทธิรวมภาษี</p>
+                    <p class="text-2xl font-bold text-indigo-600" id="cust-cart-total">฿0.00</p>
+                </div>
+                <button onclick="submitOrder()" class="bg-indigo-600 text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-indigo-200 active:scale-95 transition-all">ยืนยันสั่งซื้อ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals (Inventory Same logic) -->
+    <div id="modal-inventory" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[400] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[32px] p-8 shadow-2xl">
+            <h3 class="font-bold text-xl mb-6 text-slate-800">จัดการข้อมูลรายการสินค้า</h3>
+            <form onsubmit="saveInventory(event)" class="space-y-5">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 mb-1 block uppercase">ชื่อสินค้า / บริการ</label>
+                    <input type="text" name="name" required class="w-full p-3.5 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 mb-1 block uppercase">ราคาขาย (บ.)</label>
+                        <input type="number" name="price" required class="w-full p-3.5 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 mb-1 block uppercase">สต็อกเริ่มต้น</label>
+                        <input type="number" name="stock" required class="w-full p-3.5 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 mb-1 block uppercase">หมวดหมู่</label>
+                    <select name="category" class="w-full p-3.5 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="Drink">เครื่องดื่ม</option>
+                        <option value="Food">อาหาร</option>
+                        <option value="Service">ค่าบริการ</option>
+                    </select>
+                </div>
+                <div class="pt-4 flex flex-col gap-3">
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-indigo-100">บันทึกข้อมูล</button>
+                    <button type="button" onclick="closeModal('inventory')" class="w-full text-slate-400 py-2 text-sm font-medium hover:text-slate-600">ยกเลิก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div id="modal-receipt" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[500] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-8 relative shadow-[0_0_100px_rgba(0,0,0,0.2)]">
+            <div id="receipt-content"></div>
+            <button onclick="closeModal('receipt')" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-bold mt-6 no-print">เสร็จสิ้น</button>
+            <button onclick="window.print()" class="w-full text-slate-400 py-2 mt-2 text-xs font-bold no-print uppercase">พิมพ์ใบกำกับภาษีอย่างย่อ</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA STATE ---
+        let inventory = [
+            { id: 1, name: "เอสเพรสโซ่ร้อน", price: 55, stock: 100, category: "Drink", icon: "coffee" },
+            { id: 2, name: "อเมริกาโน่เย็น", price: 65, stock: 85, category: "Drink", icon: "mug-hot" },
+            { id: 3, name: "ครัวซองต์เนยสด", price: 85, stock: 12, category: "Food", icon: "bread-slice" },
+            { id: 4, name: "ค่าบริการทำความสะอาด", price: 500, stock: 999, category: "Service", icon: "broom" }
+        ];
+        
+        let transactions = [
+            { id: 'T-001', type: 'Income', name: 'ยอดขาย POS', amount: 150.00, time: '10:30', status: 'Success' },
+            { id: 'T-002', type: 'Expense', name: 'ค่าน้ำประปา', amount: 450.00, time: '09:15', status: 'Success' }
+        ];
+
+        let incomingOrders = [];
+        let posCart = [];
+        let customerCart = [];
+
+        // --- ACCOUNTING LOGIC ---
+        function updateDashboard() {
+            const revenue = transactions.filter(t => t.type === 'Income').reduce((acc, t) => acc + t.amount, 0);
+            const expense = transactions.filter(t => t.type === 'Expense').reduce((acc, t) => acc + t.amount, 0);
+            const profit = revenue - expense;
+
+            document.getElementById('dash-revenue').innerText = `฿${revenue.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('dash-expense').innerText = `฿${expense.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('dash-profit').innerText = `฿${profit.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            
+            renderTransactions();
+        }
+
+        function renderTransactions() {
+            const list = document.getElementById('transaction-list');
+            list.innerHTML = transactions.slice().reverse().map(t => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="p-4 text-xs font-medium text-slate-500">${t.time}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${t.type === 'Income' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
+                            ${t.type === 'Income' ? 'รายรับ' : 'รายจ่าย'}
+                        </span>
+                    </td>
+                    <td class="p-4 font-bold text-slate-700">${t.name}</td>
+                    <td class="p-4 text-right font-bold ${t.type === 'Income' ? 'text-emerald-600' : 'text-rose-600'}">
+                        ${t.type === 'Income' ? '+' : '-'}฿${t.amount.toLocaleString()}
+                    </td>
+                    <td class="p-4"><i class="fas fa-check-circle text-emerald-400"></i></td>
+                </tr>
+            `).join('');
+        }
+
+        function saveExpense(e) {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const amount = parseFloat(fd.get('amount'));
+            
+            transactions.push({
+                id: 'E-' + Date.now().toString().slice(-4),
+                type: 'Expense',
+                name: fd.get('name'),
+                amount: amount,
+                time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+                status: 'Success'
+            });
+
+            e.target.reset();
+            updateDashboard();
+            alert("บันทึกรายจ่ายเรียบร้อย");
+        }
+
+        // --- CORE UI FUNCTIONS ---
+        function init() {
+            updateLiveTime();
+            setInterval(updateLiveTime, 1000);
+            renderMerchantInventory();
+            renderPOSMenu();
+            renderCustomerMenu();
+            renderOrders();
+            updateDashboard();
+        }
+
+        function updateLiveTime() {
+            document.getElementById('live-time').innerText = new Date().toLocaleString('th-TH');
+        }
+
+        function toggleView(role) {
+            document.getElementById('merchant-view').classList.toggle('hidden', role !== 'merchant');
+            document.getElementById('customer-view').classList.toggle('hidden', role !== 'customer');
+            
+            document.getElementById('btn-merchant').classList.toggle('bg-indigo-600', role === 'merchant');
+            document.getElementById('btn-customer').classList.toggle('bg-indigo-600', role === 'customer');
+            
+            if(role === 'customer') {
+                document.body.style.backgroundColor = "#fff";
+            } else {
+                document.body.style.backgroundColor = "#f8fafc";
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.toggle('active', el.dataset.tab === tabId));
+            document.getElementById('tab-title').innerText = document.querySelector(`[data-tab="${tabId}"]`).innerText;
+        }
+
+        // --- INVENTORY MANAGEMENT ---
+        function renderMerchantInventory() {
+            const list = document.getElementById('inventory-list');
+            list.innerHTML = inventory.map(i => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="p-4"><div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-500 shadow-sm"><i class="fas fa-${i.icon || 'tag'} text-xl"></i></div></td>
+                    <td class="p-4 font-bold text-slate-700">${i.name}</td>
+                    <td class="p-4 text-xs font-bold text-slate-400 uppercase tracking-widest">${i.category}</td>
+                    <td class="p-4 font-bold text-indigo-600">฿${i.price}</td>
+                    <td class="p-4"><span class="px-3 py-1 rounded-full text-xs font-bold ${i.stock < 10 ? 'bg-rose-50 text-rose-500' : 'bg-slate-100 text-slate-500'}">${i.stock}</span></td>
+                    <td class="p-4"><button onclick="deleteItem(${i.id})" class="w-8 h-8 rounded-lg hover:bg-rose-50 hover:text-rose-500 text-slate-300 transition-all"><i class="fas fa-trash-alt text-xs"></i></button></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderPOSMenu() {
+            const grid = document.getElementById('pos-product-grid');
+            grid.innerHTML = inventory.map(i => `
+                <button onclick="addToPOSCart(${i.id})" class="group p-4 bg-white border border-slate-100 hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-50 rounded-3xl transition-all text-left">
+                    <div class="w-10 h-10 bg-slate-50 group-hover:bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-500 mb-4 transition-colors">
+                        <i class="fas fa-${i.icon || 'tag'}"></i>
+                    </div>
+                    <p class="font-bold text-slate-700 text-sm mb-1">${i.name}</p>
+                    <p class="text-xs font-bold text-indigo-600">฿${i.price}</p>
+                </button>
+            `).join('');
+        }
+
+        // --- POS LOGIC ---
+        function addToPOSCart(id) {
+            const item = inventory.find(i => i.id === id);
+            const inCart = posCart.find(c => c.id === id);
+            if(inCart) inCart.qty++;
+            else posCart.push({...item, qty: 1});
+            renderPOSCart();
+        }
+
+        function renderPOSCart() {
+            const container = document.getElementById('pos-cart');
+            container.innerHTML = posCart.map(c => `
+                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-2xl border border-white">
+                    <div class="flex-1">
+                        <p class="font-bold text-sm text-slate-700">${c.name}</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">฿${c.price} x ${c.qty}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-indigo-600 text-sm">฿${(c.price * c.qty).toLocaleString()}</p>
+                        <button onclick="removeFromPOS(${c.id})" class="text-[10px] text-rose-400 font-bold uppercase">ลบออก</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            const subtotal = posCart.reduce((acc, c) => acc + (c.price * c.qty), 0);
+            const tax = subtotal * 0.07;
+            const total = subtotal + tax;
+            
+            document.getElementById('pos-subtotal').innerText = `฿${subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('pos-tax').innerText = `฿${tax.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('pos-total').innerText = `฿${total.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        }
+
+        function removeFromPOS(id) {
+            posCart = posCart.filter(c => c.id !== id);
+            renderPOSCart();
+        }
+
+        function checkoutPOS() {
+            if(posCart.length === 0) return;
+            const total = posCart.reduce((acc, c) => acc + (c.price * c.qty), 0) * 1.07;
+            
+            // Record Transaction
+            transactions.push({
+                id: 'POS-' + Date.now().toString().slice(-4),
+                type: 'Income',
+                name: 'การขาย POS หน้าร้าน',
+                amount: total,
+                time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+                status: 'Success'
+            });
+
+            // Update Stock
+            posCart.forEach(c => {
+                const invItem = inventory.find(i => i.id === c.id);
+                if(invItem) invItem.stock -= c.qty;
+            });
+
+            showReceipt('Walk-in Customer', posCart, total);
+            posCart = [];
+            renderPOSCart();
+            renderMerchantInventory();
+            updateDashboard();
+        }
+
+        // --- CUSTOMER LOGIC ---
+        function renderCustomerMenu() {
+            const grid = document.getElementById('customer-menu-grid');
+            grid.innerHTML = inventory.map(i => `
+                <div class="group flex items-center gap-5 py-6 border-b border-slate-50 active:bg-slate-50 transition-all rounded-2xl px-2">
+                    <div class="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center text-3xl text-indigo-200 transition-colors group-hover:bg-indigo-50 group-hover:text-indigo-400 shadow-sm">
+                        <i class="fas fa-${i.icon || 'tag'}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-800 text-lg">${i.name}</h4>
+                        <p class="text-xs text-slate-400 mb-3">สดใหม่ พร้อมให้บริการทุกวัน</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl font-bold text-indigo-600">฿${i.price}</span>
+                            <button onclick="addToCustCart(${i.id})" class="bg-indigo-600 text-white w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-100 active:scale-90 transition-all">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addToCustCart(id) {
+            const item = inventory.find(i => i.id === id);
+            const inCart = customerCart.find(c => c.id === id);
+            if(inCart) inCart.qty++;
+            else customerCart.push({...item, qty: 1});
+            renderCustCart();
+            document.getElementById('customer-cart-float').classList.remove('translate-y-64');
+        }
+
+        function renderCustCart() {
+            const itemsCont = document.getElementById('cust-cart-items');
+            itemsCont.innerHTML = customerCart.map(c => `
+                <div class="flex justify-between py-3">
+                    <div class="flex gap-3">
+                        <span class="bg-indigo-50 text-indigo-600 w-6 h-6 flex items-center justify-center rounded-lg text-[10px] font-bold">${c.qty}x</span>
+                        <span class="font-bold text-slate-700">${c.name}</span>
+                    </div>
+                    <span class="font-bold text-slate-800">฿${(c.price * c.qty).toLocaleString()}</span>
+                </div>
+            `).join('');
+            
+            const total = customerCart.reduce((acc, c) => acc + (c.price * c.qty), 0) * 1.07;
+            document.getElementById('cust-cart-total').innerText = `฿${total.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('cust-cart-count').innerText = `${customerCart.reduce((acc, c) => acc + c.qty, 0)} ITEMS`;
+        }
+
+        function clearCustCart() {
+            customerCart = [];
+            renderCustCart();
+            document.getElementById('customer-cart-float').classList.add('translate-y-64');
+        }
+
+        function submitOrder() {
+            if(customerCart.length === 0) return;
+            const total = customerCart.reduce((acc, c) => acc + (c.price * c.qty), 0) * 1.07;
+            
+            const newOrder = {
+                id: "ORD-" + Math.floor(1000 + Math.random() * 9000),
+                table: "05",
+                items: [...customerCart],
+                total: total,
+                time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            incomingOrders.push(newOrder);
+            clearCustCart();
+            alert("ออเดอร์ถูกส่งไปยังสำนักงานเรียบร้อย!");
+            renderOrders();
+            toggleView('merchant');
+            switchTab('orders');
+        }
+
+        // --- ORDER MANAGEMENT (MERCHANT) ---
+        function renderOrders() {
+            const container = document.getElementById('incoming-orders-container');
+            const noOrders = document.getElementById('no-orders');
+            const badge = document.getElementById('order-badge');
+            
+            if(incomingOrders.length === 0) {
+                container.innerHTML = '';
+                noOrders.classList.remove('hidden');
+                badge.classList.add('hidden');
+                return;
+            }
+
+            noOrders.classList.add('hidden');
+            badge.innerText = incomingOrders.length;
+            badge.classList.remove('hidden');
+
+            container.innerHTML = incomingOrders.map(order => `
+                <div class="bg-white p-6 rounded-[32px] border-2 border-indigo-50 shadow-sm relative overflow-hidden group">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <span class="bg-indigo-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase shadow-lg shadow-indigo-100">${order.id}</span>
+                            <h4 class="text-2xl font-bold mt-4 text-slate-800">โต๊ะที่ ${order.table}</h4>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1"><i class="far fa-clock mr-1"></i> ${order.time}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mb-1">ยอดรวมสุทธิ</p>
+                            <p class="text-2xl font-bold text-indigo-600">฿${order.total.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 mb-8 bg-slate-50 p-5 rounded-2xl border border-white">
+                        ${order.items.map(i => `<div class="flex justify-between text-sm font-medium"><span>${i.name} x ${i.qty}</span> <span class="text-slate-400">฿${(i.price * i.qty).toLocaleString()}</span></div>`).join('')}
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="approveOrder('${order.id}')" class="bg-emerald-500 text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-emerald-50 hover:bg-emerald-600 transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-check-circle"></i> รับเงิน & ตัดสต็อก
+                        </button>
+                        <button onclick="rejectOrder('${order.id}')" class="bg-slate-50 text-slate-400 py-4 rounded-2xl font-bold text-sm hover:bg-rose-50 hover:text-rose-500 transition-all">ปฏิเสธ</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function approveOrder(id) {
+            const idx = incomingOrders.findIndex(o => o.id === id);
+            const order = incomingOrders[idx];
+            
+            transactions.push({
+                id: 'INC-' + Date.now().toString().slice(-4),
+                type: 'Income',
+                name: `ขายจากโต๊ะ ${order.table} (${order.id})`,
+                amount: order.total,
+                time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+                status: 'Success'
+            });
+
+            order.items.forEach(item => {
+                const invItem = inventory.find(i => i.id === item.id);
+                if(invItem) invItem.stock -= item.qty;
+            });
+
+            incomingOrders.splice(idx, 1);
+            renderOrders();
+            renderMerchantInventory();
+            updateDashboard();
+            alert(`ดำเนินการสั่งซื้อ ${id} สำเร็จ! บันทึกรายรับเรียบร้อย`);
+        }
+
+        function rejectOrder(id) {
+            if(confirm("ต้องการปฏิเสธคำสั่งซื้อนี้หรือไม่?")) {
+                const idx = incomingOrders.findIndex(o => o.id === id);
+                incomingOrders.splice(idx, 1);
+                renderOrders();
+            }
+        }
+
+        // --- UTILS ---
+        function showReceipt(customer, items, total) {
+            const content = document.getElementById('receipt-content');
+            const tax = total * (7/107);
+            const subtotal = total - tax;
+            
+            content.innerHTML = `
+                <div class="text-center mb-8">
+                    <h2 class="text-xl font-bold uppercase tracking-widest text-slate-800">SME SHOP PRO</h2>
+                    <p class="text-[10px] text-slate-400 mt-1 uppercase font-bold">Tax ID: 0-1234-56789-01-2</p>
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">ใบกำกับภาษีอย่างย่อ / ใบเสร็จรับเงิน</p>
+                </div>
+                <div class="border-t border-b border-dashed py-4 mb-6 text-xs space-y-1">
+                    <div class="flex justify-between font-bold text-slate-500"><span>No:</span> <span>REC-${Date.now().toString().slice(-6)}</span></div>
+                    <div class="flex justify-between font-bold text-slate-500"><span>Date:</span> <span>${new Date().toLocaleDateString('th-TH')}</span></div>
+                    <div class="flex justify-between font-bold text-slate-500"><span>Customer:</span> <span>${customer}</span></div>
+                </div>
+                <div class="space-y-3 mb-8 text-xs">
+                    ${items.map(i => `
+                        <div class="flex justify-between font-medium">
+                            <span>${i.name} x ${i.qty}</span>
+                            <span class="font-bold text-slate-700">฿${(i.price * i.qty).toLocaleString()}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="border-t border-dashed pt-4 space-y-2 text-xs">
+                    <div class="flex justify-between font-bold text-slate-400"><span>Sub Total:</span> <span>฿${subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+                    <div class="flex justify-between font-bold text-slate-400"><span>VAT (7%):</span> <span>฿${tax.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+                    <div class="flex justify-between font-bold text-xl text-indigo-600 pt-2 border-t border-slate-50"><span>TOTAL:</span> <span>฿${total.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+                </div>
+                <div class="text-center mt-10">
+                    <p class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">--- THANK YOU ---</p>
+                </div>
+            `;
+            openModal('receipt');
+        }
+
+        function openModal(id) { document.getElementById(`modal-${id}`).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(`modal-${id}`).classList.add('hidden'); }
+
+        function saveInventory(e) {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            inventory.push({
+                id: Date.now(),
+                name: fd.get('name'),
+                price: parseInt(fd.get('price')),
+                stock: parseInt(fd.get('stock')),
+                category: fd.get('category'),
+                icon: fd.get('category') === 'Drink' ? 'coffee' : (fd.get('category') === 'Food' ? 'utensils' : 'concierge-bell')
+            });
+            closeModal('inventory');
+            renderMerchantInventory();
+            renderPOSMenu();
+            renderCustomerMenu();
+        }
+
+        function deleteItem(id) {
+            if(confirm("ยืนยันการลบรายการสินค้านี้?")) {
+                inventory = inventory.filter(i => i.id !== id);
+                renderMerchantInventory();
+                renderPOSMenu();
+                renderCustomerMenu();
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

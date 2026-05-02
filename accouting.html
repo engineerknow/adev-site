@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SME Account Core + Asset Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-link.active { background-color: #1e293b; color: white; border-radius: 12px; }
+        .card-shadow { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .asset-card:hover { transform: translateY(-2px); transition: all 0.2s; }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside class="w-72 bg-white border-r flex flex-col sticky top-0 h-screen z-50">
+            <div class="p-8">
+                <div class="flex items-center gap-3 text-indigo-600 mb-8">
+                    <div class="bg-indigo-600 p-2 rounded-xl text-white">
+                        <i class="fas fa-calculator text-xl"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-slate-800">SME <span class="text-indigo-600">ERP</span></h1>
+                </div>
+
+                <nav class="space-y-1">
+                    <p class="px-4 text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest">เมนูหลัก</p>
+                    <button onclick="switchTab('dashboard')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all active" data-tab="dashboard">
+                        <i class="fas fa-chart-line w-5"></i> ภาพรวมการเงิน
+                    </button>
+                    <button onclick="switchTab('journal')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all" data-tab="journal">
+                        <i class="fas fa-book w-5"></i> สมุดรายวันทั่วไป
+                    </button>
+                    <button onclick="switchTab('assets')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all" data-tab="assets">
+                        <i class="fas fa-boxes-stacked w-5"></i> ทะเบียนสินทรัพย์
+                    </button>
+                    <button onclick="switchTab('ledger')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all" data-tab="ledger">
+                        <i class="fas fa-sitemap w-5"></i> ผังบัญชี
+                    </button>
+                    
+                    <p class="px-4 text-[10px] font-bold text-slate-400 uppercase mt-8 mb-2 tracking-widest">รายงาน</p>
+                    <button onclick="switchTab('reports')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all" data-tab="reports">
+                        <i class="fas fa-file-invoice-dollar w-5"></i> งบกำไรขาดทุน
+                    </button>
+                </nav>
+            </div>
+            <div class="mt-auto p-6 border-t bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">SM</div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-800">SME Account v2.0</p>
+                        <p class="text-[10px] text-slate-500 italic">พร้อมระบบสินทรัพย์</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 id="tab-title" class="text-2xl font-bold text-slate-800">ภาพรวมการเงิน</h2>
+                    <p class="text-sm text-slate-500">จัดการระบบบัญชีและสินทรัพย์ถาวรของคุณ</p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="openModal('asset')" id="btn-add-asset" class="hidden bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all flex items-center gap-2">
+                        <i class="fas fa-plus text-indigo-500"></i> เพิ่มสินทรัพย์
+                    </button>
+                    <button onclick="openModal('journal')" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center gap-2">
+                        <i class="fas fa-plus"></i> บันทึกบัญชีใหม่
+                    </button>
+                </div>
+            </header>
+
+            <!-- TAB: Dashboard -->
+            <div id="dashboard" class="tab-content active space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-2xl card-shadow border border-slate-100">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-blue-50 text-blue-600 rounded-xl"><i class="fas fa-wallet"></i></div>
+                            <span class="text-[10px] font-bold text-emerald-500">+8.5%</span>
+                        </div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">กระแสเงินสดสุทธิ</p>
+                        <h3 class="text-2xl font-bold text-slate-800 mt-1" id="dash-net">฿0.00</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl card-shadow border border-slate-100">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl"><i class="fas fa-building"></i></div>
+                        </div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">มูลค่าสินทรัพย์สุทธิ</p>
+                        <h3 class="text-2xl font-bold text-slate-800 mt-1" id="dash-assets">฿0.00</h3>
+                    </div>
+                    <div class="bg-indigo-900 p-6 rounded-2xl card-shadow text-white">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-white/10 text-white rounded-xl"><i class="fas fa-chart-bar"></i></div>
+                        </div>
+                        <p class="text-xs font-bold text-indigo-300 uppercase tracking-widest">กำไรสะสม</p>
+                        <h3 class="text-2xl font-bold mt-1" id="dash-profit">฿0.00</h3>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-2xl card-shadow border border-slate-100">
+                        <h4 class="font-bold mb-6 flex items-center gap-2"><i class="fas fa-clock-rotate-left text-indigo-500"></i> รายการล่าสุด</h4>
+                        <div class="space-y-4" id="recent-list"></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl card-shadow border border-slate-100">
+                        <h4 class="font-bold mb-6 flex items-center gap-2"><i class="fas fa-pie-chart text-indigo-500"></i> สัดส่วนสินทรัพย์</h4>
+                        <div id="asset-summary" class="space-y-4"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Journal -->
+            <div id="journal" class="tab-content">
+                <div class="bg-white rounded-2xl card-shadow border border-slate-100 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 border-b text-[10px] uppercase font-bold text-slate-400">
+                            <tr>
+                                <th class="p-4">วันที่</th>
+                                <th class="p-4">เลขที่</th>
+                                <th class="p-4">คำอธิบาย</th>
+                                <th class="p-4">บัญชี</th>
+                                <th class="p-4 text-right">เดบิต</th>
+                                <th class="p-4 text-right">เครดิต</th>
+                            </tr>
+                        </thead>
+                        <tbody id="journal-list" class="text-sm divide-y"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: Assets -->
+            <div id="assets" class="tab-content space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="asset-stats">
+                    <!-- Asset summary cards -->
+                </div>
+                
+                <div class="bg-white rounded-2xl card-shadow border border-slate-100 overflow-hidden">
+                    <div class="p-4 border-b bg-slate-50/50 flex justify-between items-center">
+                        <h3 class="font-bold text-sm">รายการทะเบียนสินทรัพย์</h3>
+                        <button onclick="calculateDepreciationAll()" class="text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg font-bold hover:bg-indigo-100 transition-all">
+                            <i class="fas fa-calculator mr-1"></i> คำนวณค่าเสื่อมราคาทั้งหมด
+                        </button>
+                    </div>
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 border-b text-[10px] uppercase font-bold text-slate-400">
+                            <tr>
+                                <th class="p-4">รหัส/ชื่อสินทรัพย์</th>
+                                <th class="p-4 text-right">ราคาทุน</th>
+                                <th class="p-4 text-center">อายุ (ปี)</th>
+                                <th class="p-4 text-right">ค่าเสื่อมสะสม</th>
+                                <th class="p-4 text-right">มูลค่าสุทธิ</th>
+                                <th class="p-4">สถานะ</th>
+                                <th class="p-4">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="asset-list" class="text-sm divide-y"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: Reports -->
+            <div id="reports" class="tab-content">
+                <div class="bg-white p-12 rounded-[2rem] card-shadow border border-slate-100 max-w-4xl mx-auto shadow-2xl shadow-indigo-100/50">
+                    <div class="text-center mb-10 border-b pb-10">
+                        <h2 class="text-2xl font-bold text-slate-800 uppercase tracking-widest">งบกำไรขาดทุน</h2>
+                        <p class="text-slate-400 text-sm mt-2">รายงานสถานะทางการเงิน ณ วันที่ <span class="current-date"></span></p>
+                    </div>
+                    <div class="space-y-10">
+                        <section>
+                            <h5 class="font-bold text-indigo-600 flex justify-between items-center border-b pb-2 mb-4 uppercase text-xs tracking-widest">
+                                <span>รายได้ (Revenues)</span>
+                                <span id="report-total-income">฿0.00</span>
+                            </h5>
+                            <div id="report-income-rows" class="space-y-2"></div>
+                        </section>
+                        <section>
+                            <h5 class="font-bold text-rose-500 flex justify-between items-center border-b pb-2 mb-4 uppercase text-xs tracking-widest">
+                                <span>ค่าใช้จ่าย (Expenses)</span>
+                                <span id="report-total-expense">฿0.00</span>
+                            </h5>
+                            <div id="report-expense-rows" class="space-y-2"></div>
+                        </section>
+                        <div class="bg-slate-900 text-white p-8 rounded-3xl flex justify-between items-center shadow-xl shadow-slate-200">
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">กำไร (ขาดทุน) สุทธิ</p>
+                                <h4 class="text-3xl font-bold" id="report-net-profit">฿0.00</h4>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-slate-400">สถานะ: <span class="text-emerald-400">ปกติ</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Ledger -->
+            <div id="ledger" class="tab-content">
+                <div class="bg-white rounded-2xl border card-shadow overflow-hidden p-6">
+                    <h4 class="font-bold mb-4">ผังบัญชีแยกประเภท</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="coa-grid"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal: Add Journal -->
+    <div id="modal-journal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-[2rem] overflow-hidden shadow-2xl">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 class="font-bold">บันทึกรายการบัญชี</h3>
+                <button onclick="closeModal('journal')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="saveJournal(event)" class="p-8 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">วันที่</label>
+                        <input type="date" name="date" required class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">อ้างอิง</label>
+                        <input type="text" name="ref" placeholder="REF-001" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">คำอธิบาย</label>
+                    <input type="text" name="desc" required placeholder="ระบุรายการ..." class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">หมวดบัญชี</label>
+                        <select name="acc_id" id="journal-acc-select" class="w-full p-3 bg-slate-50 border rounded-xl outline-none text-sm"></select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">จำนวนเงิน</label>
+                        <input type="number" name="amount" step="0.01" required class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-indigo-700 transition-all mt-4">บันทึกรายการ</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Asset -->
+    <div id="modal-asset" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-[2rem] overflow-hidden shadow-2xl">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 class="font-bold">เพิ่มสินทรัพย์ใหม่</h3>
+                <button onclick="closeModal('asset')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="saveAsset(event)" class="p-8 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">รหัสสินทรัพย์</label>
+                        <input type="text" name="code" required placeholder="AST-001" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">วันที่ซื้อ</label>
+                        <input type="date" name="purchase_date" required class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">ชื่อสินทรัพย์</label>
+                    <input type="text" name="name" required placeholder="คอมพิวเตอร์สำนักงาน" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                </div>
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="col-span-2">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">ราคาทุน (บาท)</label>
+                        <input type="number" name="cost" required step="0.01" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">อายุ (ปี)</label>
+                        <input type="number" name="life" required value="5" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">ราคาซาก (Residual Value)</label>
+                    <input type="number" name="salvage" required value="1" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-indigo-700 transition-all mt-4">ลงทะเบียนสินทรัพย์</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const accounts = [
+            { id: '101', name: 'เงินสด/เงินฝาก', category: 'Asset', type: 'Dr' },
+            { id: '105', name: 'อาคารและอุปกรณ์', category: 'Asset', type: 'Dr' },
+            { id: '106', name: 'ค่าเสื่อมราคาสะสม', category: 'Asset', type: 'Cr' },
+            { id: '401', name: 'รายได้ค่าบริการ', category: 'Revenue', type: 'Cr' },
+            { id: '501', name: 'เงินเดือน', category: 'Expense', type: 'Dr' },
+            { id: '502', name: 'ค่าเสื่อมราคา (ค่าใช้จ่าย)', category: 'Expense', type: 'Dr' }
+        ];
+
+        let assets = [
+            { id: 1, code: 'AST-001', name: 'MacBook Pro M3', cost: 75000, purchase_date: '2023-01-10', life: 5, salvage: 1, acc_dep: 18750, status: 'Active' },
+            { id: 2, code: 'AST-002', name: 'โต๊ะทำงานไฟฟ้า', cost: 12000, purchase_date: '2024-01-15', life: 5, salvage: 1, acc_dep: 500, status: 'Active' }
+        ];
+
+        let journals = [
+            { id: 'J-1001', date: '2024-03-01', ref: 'INV-001', desc: 'รับเงินค่าบริการ', acc_id: '401', dr: 0, cr: 55000 },
+            { id: 'J-1002', date: '2024-03-05', ref: 'PAY-001', desc: 'จ่ายเงินเดือนพนักงาน', acc_id: '501', dr: 25000, cr: 0 }
+        ];
+
+        // --- APP LOGIC ---
+        function init() {
+            renderDashboard();
+            renderJournal();
+            renderAssets();
+            renderCOA();
+            populateAccSelect();
+            document.querySelectorAll('.current-date').forEach(el => el.innerText = new Date().toLocaleDateString('th-TH'));
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+            document.getElementById('tab-title').innerText = document.querySelector(`[data-tab="${tabId}"]`).innerText;
+            
+            // Toggle "Add Asset" button visibility
+            document.getElementById('btn-add-asset').classList.toggle('hidden', tabId !== 'assets');
+            
+            if(tabId === 'reports') renderReports();
+        }
+
+        function openModal(id) { document.getElementById(`modal-${id}`).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(`modal-${id}`).classList.add('hidden'); }
+
+        function populateAccSelect() {
+            const select = document.getElementById('journal-acc-select');
+            select.innerHTML = accounts.map(a => `<option value="${a.id}">${a.id} - ${a.name}</option>`).join('');
+        }
+
+        // --- ASSET FUNCTIONS ---
+        function saveAsset(e) {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const newAsset = {
+                id: Date.now(),
+                code: fd.get('code'),
+                name: fd.get('name'),
+                purchase_date: fd.get('purchase_date'),
+                cost: parseFloat(fd.get('cost')),
+                life: parseInt(fd.get('life')),
+                salvage: parseFloat(fd.get('salvage')),
+                acc_dep: 0,
+                status: 'Active'
+            };
+            assets.push(newAsset);
+            
+            // Also create a journal entry for purchasing asset (Mocking payment from cash)
+            journals.push({
+                id: 'J-' + Date.now().toString().slice(-4),
+                date: newAsset.purchase_date,
+                ref: newAsset.code,
+                desc: 'ซื้อสินทรัพย์: ' + newAsset.name,
+                acc_id: '105',
+                dr: newAsset.cost,
+                cr: 0
+            });
+
+            renderAssets();
+            renderJournal();
+            renderDashboard();
+            closeModal('asset');
+            e.target.reset();
+        }
+
+        function calculateDepreciationAll() {
+            // Simple Linear Depreciation calculation (yearly simulation)
+            assets.forEach(asset => {
+                if (asset.status !== 'Active') return;
+                const yearlyDep = (asset.cost - asset.salvage) / asset.life;
+                const monthlyDep = yearlyDep / 12;
+                
+                asset.acc_dep += monthlyDep;
+                if (asset.acc_dep > (asset.cost - asset.salvage)) {
+                    asset.acc_dep = asset.cost - asset.salvage;
+                }
+
+                // Log into journal
+                journals.push({
+                    id: 'DEP-' + Date.now().toString().slice(-3),
+                    date: new Date().toISOString().split('T')[0],
+                    ref: asset.code,
+                    desc: 'ค่าเสื่อมราคาประจำเดือน: ' + asset.name,
+                    acc_id: '502',
+                    dr: monthlyDep,
+                    cr: 0
+                });
+            });
+            renderAssets();
+            renderJournal();
+            renderDashboard();
+            alert('คำนวณค่าเสื่อมราคาประจำเดือนเรียบร้อยแล้ว');
+        }
+
+        // --- RENDERERS ---
+        function renderAssets() {
+            const list = document.getElementById('asset-list');
+            const totalCost = assets.reduce((sum, a) => sum + a.cost, 0);
+            const totalAccDep = assets.reduce((sum, a) => sum + a.acc_dep, 0);
+
+            list.innerHTML = assets.map(a => {
+                const bookValue = a.cost - a.acc_dep;
+                return `
+                    <tr class="hover:bg-slate-50 transition-all border-b border-slate-50">
+                        <td class="p-4">
+                            <p class="font-bold text-slate-800">${a.name}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">${a.code} | ซื้อเมื่อ ${a.purchase_date}</p>
+                        </td>
+                        <td class="p-4 text-right font-medium">฿${a.cost.toLocaleString()}</td>
+                        <td class="p-4 text-center text-slate-500">${a.life}</td>
+                        <td class="p-4 text-right text-rose-500 font-medium">-฿${a.acc_dep.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        <td class="p-4 text-right font-bold text-indigo-600">฿${bookValue.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        <td class="p-4">
+                            <span class="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-bold uppercase">${a.status}</span>
+                        </td>
+                        <td class="p-4">
+                            <button class="text-slate-400 hover:text-indigo-600"><i class="fas fa-ellipsis-v"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Asset Stats
+            document.getElementById('asset-stats').innerHTML = `
+                <div class="bg-white p-4 rounded-xl border border-slate-100 card-shadow">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">รวมราคาทุน</p>
+                    <h5 class="text-lg font-bold">฿${totalCost.toLocaleString()}</h5>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-100 card-shadow">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">ค่าเสื่อมสะสมรวม</p>
+                    <h5 class="text-lg font-bold text-rose-500">฿${totalAccDep.toLocaleString()}</h5>
+                </div>
+                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 card-shadow">
+                    <p class="text-[10px] font-bold text-indigo-400 uppercase">มูลค่าสุทธิรวม</p>
+                    <h5 class="text-lg font-bold text-indigo-600">฿${(totalCost - totalAccDep).toLocaleString()}</h5>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-100 card-shadow">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">จำนวนสินทรัพย์</p>
+                    <h5 class="text-lg font-bold">${assets.length} รายการ</h5>
+                </div>
+            `;
+        }
+
+        function renderJournal() {
+            const list = document.getElementById('journal-list');
+            list.innerHTML = journals.slice().reverse().map(j => `
+                <tr class="hover:bg-slate-50 transition-all">
+                    <td class="p-4 text-slate-400">${j.date}</td>
+                    <td class="p-4 font-bold text-indigo-600">${j.ref}</td>
+                    <td class="p-4 font-medium">${j.desc}</td>
+                    <td class="p-4">
+                        <span class="text-[10px] font-bold px-2 py-1 bg-slate-100 rounded text-slate-500 uppercase">
+                            ${accounts.find(a => a.id === j.acc_id).name}
+                        </span>
+                    </td>
+                    <td class="p-4 text-right font-bold ${j.dr > 0 ? 'text-slate-800' : 'text-slate-200'}">฿${j.dr.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                    <td class="p-4 text-right font-bold ${j.cr > 0 ? 'text-slate-800' : 'text-slate-200'}">฿${j.cr.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderDashboard() {
+            const netAssets = assets.reduce((s, a) => s + (a.cost - a.acc_dep), 0);
+            const totalIncome = journals.filter(j => accounts.find(a => a.id === j.acc_id).category === 'Revenue').reduce((s, j) => s + (j.dr + j.cr), 0);
+            const totalExpense = journals.filter(j => accounts.find(a => a.id === j.acc_id).category === 'Expense').reduce((s, j) => s + (j.dr + j.cr), 0);
+            
+            document.getElementById('dash-net').innerText = `฿${(totalIncome - totalExpense).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('dash-assets').innerText = `฿${netAssets.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('dash-profit').innerText = `฿${(totalIncome - totalExpense).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+
+            const recent = document.getElementById('recent-list');
+            recent.innerHTML = journals.slice(-3).reverse().map(j => `
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold">${j.desc}</p>
+                            <p class="text-[10px] text-slate-400">${j.date}</p>
+                        </div>
+                    </div>
+                    <p class="text-sm font-bold ${j.dr > 0 ? 'text-indigo-600' : 'text-emerald-500'}">฿${(j.dr + j.cr).toLocaleString()}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderCOA() {
+            const grid = document.getElementById('coa-grid');
+            grid.innerHTML = accounts.map(a => `
+                <div class="p-4 border border-slate-100 rounded-xl bg-slate-50/50">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">${a.category}</p>
+                    <p class="text-sm font-bold text-slate-700">${a.id} - ${a.name}</p>
+                    <div class="mt-3 flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-indigo-500">${a.type}</span>
+                        <button class="text-xs text-slate-400 hover:text-indigo-600">แก้ไข</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function saveJournal(e) {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const amt = parseFloat(fd.get('amount'));
+            const accId = fd.get('acc_id');
+            const acc = accounts.find(a => a.id === accId);
+            
+            journals.push({
+                id: 'J-' + Date.now().toString().slice(-4),
+                date: fd.get('date'),
+                ref: fd.get('ref'),
+                desc: fd.get('desc'),
+                acc_id: accId,
+                dr: acc.type === 'Dr' ? amt : 0,
+                cr: acc.type === 'Cr' ? amt : 0
+            });
+            renderJournal();
+            renderDashboard();
+            closeModal('journal');
+            e.target.reset();
+        }
+
+        function renderReports() {
+            const incList = document.getElementById('report-income-rows');
+            const expList = document.getElementById('report-expense-rows');
+            
+            let totalInc = 0;
+            let totalExp = 0;
+
+            const incomes = accounts.filter(a => a.category === 'Revenue');
+            const expenses = accounts.filter(a => a.category === 'Expense');
+
+            incList.innerHTML = incomes.map(acc => {
+                const sum = journals.filter(j => j.acc_id === acc.id).reduce((s, j) => s + (j.dr + j.cr), 0);
+                totalInc += sum;
+                return `<div class="flex justify-between text-sm"><span>${acc.name}</span><span class="font-bold">฿${sum.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>`;
+            }).join('');
+
+            expList.innerHTML = expenses.map(acc => {
+                const sum = journals.filter(j => j.acc_id === acc.id).reduce((s, j) => s + (j.dr + j.cr), 0);
+                totalExp += sum;
+                return `<div class="flex justify-between text-sm"><span>${acc.name}</span><span class="font-bold">฿${sum.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>`;
+            }).join('');
+
+            document.getElementById('report-total-income').innerText = `฿${totalInc.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('report-total-expense').innerText = `฿${totalExp.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('report-net-profit').innerText = `฿${(totalInc - totalExp).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

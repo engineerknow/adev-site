@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A DEV Animal Clinic dEMO- Billing & Receipt System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-link.active { background-color: #0ea5e9; color: white; border-radius: 12px; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background-color: white; }
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar (no-print) -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white border-r z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 no-print">
+            <div class="p-6">
+                <div class="flex items-center gap-3 text-sky-600 mb-8">
+                    <i class="fas fa-paw text-3xl"></i>
+                    <h1 class="text-xl font-bold leading-none">A DEV - Animal Clinic<br><span class="text-slate-400 text-xs font-normal">DEMO</span></h1>
+                </div>
+                
+                <nav class="space-y-1">
+                    <button onclick="switchTab('dashboard')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all active" data-tab="dashboard">
+                        <i class="fas fa-chart-line w-5"></i> แผงควบคุม
+                    </button>
+                    <button onclick="switchTab('patients')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all" data-tab="patients">
+                        <i class="fas fa-dog w-5"></i> ทะเบียนสัตว์เลี้ยง
+                    </button>
+                    <button onclick="switchTab('pos')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all" data-tab="pos">
+                        <i class="fas fa-file-invoice-dollar w-5"></i> ออกบิล/ชำระเงิน
+                    </button>
+                    <button onclick="switchTab('inventory')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all" data-tab="inventory">
+                        <i class="fas fa-pills w-5"></i> สต็อกและบริการ
+                    </button>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 md:ml-64 p-4 md:p-8">
+            <header class="flex justify-between items-center mb-8 no-print">
+                <h2 id="tab-title" class="text-2xl font-bold text-slate-800">แผงควบคุม</h2>
+                <div id="live-time" class="text-sm font-medium text-slate-500 bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100"></div>
+            </header>
+
+            <!-- TAB: Dashboard -->
+            <div id="dashboard" class="tab-content active space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                        <p class="text-slate-400 text-xs font-bold uppercase mb-1">รายได้วันนี้</p>
+                        <h3 id="dash-income" class="text-2xl font-bold text-emerald-500">฿0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                        <p class="text-slate-400 text-xs font-bold uppercase mb-1">จำนวนเคสวันนี้</p>
+                        <h3 id="dash-cases" class="text-2xl font-bold text-sky-500">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                        <p class="text-slate-400 text-xs font-bold uppercase mb-1">สินค้าสต็อกต่ำ</p>
+                        <h3 id="dash-lowstock" class="text-2xl font-bold text-orange-500">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Patients -->
+            <div id="patients" class="tab-content space-y-4">
+                <div class="flex justify-between items-center">
+                    <input type="text" id="search-patient" oninput="renderPatients()" placeholder="ค้นหาชื่อสัตว์/เจ้าของ..." class="w-full max-w-md px-4 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-sky-500">
+                    <button onclick="openModal('patient')" class="bg-sky-600 text-white px-6 py-2 rounded-xl font-bold">+ ลงทะเบียน</button>
+                </div>
+                <div id="patient-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
+            <!-- TAB: POS -->
+            <div id="pos" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border">
+                            <h4 class="font-bold mb-4">ระบุรายละเอียดการรักษา</h4>
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 block mb-1">คนไข้</label>
+                                    <select id="bill-patient-id" class="w-full p-2.5 bg-slate-50 border rounded-xl outline-none"></select>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 block mb-1">สัตวแพทย์</label>
+                                    <input type="text" id="bill-vet-name" value="นสพ. สมชาย" class="w-full p-2.5 bg-slate-50 border rounded-xl outline-none">
+                                </div>
+                            </div>
+                            <div id="bill-items-container" class="space-y-3 mb-4"></div>
+                            <button onclick="addBillRow()" class="w-full py-2 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 text-sm font-bold hover:bg-slate-50">+ เพิ่มรายการยา/หัตถการ</button>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-1">
+                        <div class="bg-white p-6 rounded-3xl shadow-lg border sticky top-8">
+                            <h4 class="text-lg font-bold mb-4">สรุปยอดเงิน</h4>
+                            <div class="space-y-3 text-sm mb-6">
+                                <div class="flex justify-between"><span>รวมราคาสินค้า</span> <span id="bill-subtotal">฿0</span></div>
+                                <div class="flex justify-between"><span>ส่วนลด</span> <input type="number" id="bill-discount" oninput="updateTotal()" class="w-20 text-right border rounded px-1" value="0"></div>
+                                <div class="border-t pt-3 flex justify-between items-center">
+                                    <span class="font-bold text-base">ยอดชำระสุทธิ</span>
+                                    <span id="bill-total" class="text-2xl font-bold text-sky-600">฿0</span>
+                                </div>
+                            </div>
+                            <button onclick="processBilling()" class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-emerald-600 transition-all">
+                                <i class="fas fa-check-circle mr-2"></i> บันทึกและแสดงใบเสร็จ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Inventory -->
+            <div id="inventory" class="tab-content space-y-4">
+                <div class="flex justify-end"><button onclick="openModal('inventory')" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-bold">+ เพิ่มสินค้า/บริการ</button></div>
+                <div class="bg-white rounded-2xl border overflow-hidden shadow-sm">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-slate-500 font-bold">
+                            <tr>
+                                <th class="p-4">ประเภท</th>
+                                <th class="p-4">ชื่อรายการ</th>
+                                <th class="p-4">ราคา</th>
+                                <th class="p-4">สต็อก</th>
+                                <th class="p-4">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-list" class="divide-y"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal: Patient Registration -->
+    <div id="modal-patient" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl p-6">
+            <h3 class="font-bold text-lg mb-4">ลงทะเบียนสัตว์เลี้ยง</h3>
+            <form onsubmit="savePatient(event)" class="space-y-3">
+                <input type="text" name="petName" placeholder="ชื่อสัตว์เลี้ยง" required class="w-full p-2 border rounded-xl outline-none">
+                <input type="text" name="species" placeholder="สายพันธุ์ (เช่น แมวไทย, สุนัขโกลเด้น)" required class="w-full p-2 border rounded-xl outline-none">
+                <input type="text" name="ownerName" placeholder="ชื่อเจ้าของ" required class="w-full p-2 border rounded-xl outline-none">
+                <input type="email" name="email" placeholder="Email (สำหรับส่งใบเสร็จ)" required class="w-full p-2 border rounded-xl outline-none">
+                <button type="submit" class="w-full bg-sky-600 text-white py-2 rounded-xl font-bold">บันทึก</button>
+                <button type="button" onclick="closeModal('patient')" class="w-full text-slate-400 py-1 text-sm">ยกเลิก</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Inventory Form -->
+    <div id="modal-inventory" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl p-6">
+            <h3 class="font-bold text-lg mb-4">จัดการรายการสต็อก</h3>
+            <form onsubmit="saveInventory(event)" class="space-y-3">
+                <input type="text" name="name" placeholder="ชื่อสินค้า/บริการ" required class="w-full p-2 border rounded-xl outline-none">
+                <select name="type" class="w-full p-2 border rounded-xl outline-none">
+                    <option value="Product">สินค้า (ตัดสต็อก)</option>
+                    <option value="Service">หัตถการ (ไม่ตัดสต็อก)</option>
+                </select>
+                <input type="number" name="price" placeholder="ราคาขาย" required class="w-full p-2 border rounded-xl outline-none">
+                <input type="number" name="stock" placeholder="จำนวนสต็อกเริ่มต้น" class="w-full p-2 border rounded-xl outline-none">
+                <button type="submit" class="w-full bg-slate-800 text-white py-2 rounded-xl font-bold">บันทึก</button>
+                <button type="button" onclick="closeModal('inventory')" class="w-full text-slate-400 py-1 text-sm">ยกเลิก</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Receipt Preview (Crucial) -->
+    <div id="modal-receipt" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-lg rounded-xl shadow-2xl p-8 relative">
+            <button onclick="closeModal('receipt')" class="absolute top-4 right-4 text-slate-300 hover:text-slate-500 no-print"><i class="fas fa-times text-xl"></i></button>
+            
+            <!-- Receipt Design -->
+            <div id="receipt-content" class="text-slate-800">
+                <div class="text-center border-b pb-4 mb-4">
+                    <h2 class="text-xl font-bold uppercase tracking-widest">VetCare Pro Clinic</h2>
+                    <p class="text-xs text-slate-500">123 ถนนเพ็ทแคร์, กรุงเทพมหานคร 10110</p>
+                    <p class="text-xs text-slate-500">โทร: 02-123-4567 | TAX ID: 0123456789012</p>
+                </div>
+                
+                <div class="flex justify-between text-[11px] mb-4">
+                    <div>
+                        <p><strong>ชื่อสัตว์เลี้ยง:</strong> <span id="rec-pet-name"></span></p>
+                        <p><strong>เจ้าของ:</strong> <span id="rec-owner"></span></p>
+                        <p><strong>ผู้ตรวจ:</strong> <span id="rec-vet"></span></p>
+                    </div>
+                    <div class="text-right">
+                        <p><strong>เลขที่ใบเสร็จ:</strong> <span id="rec-id"></span></p>
+                        <p><strong>วันที่:</strong> <span id="rec-date"></span></p>
+                    </div>
+                </div>
+
+                <table class="w-full text-xs mb-6">
+                    <thead class="border-y">
+                        <tr>
+                            <th class="py-2 text-left">รายการ</th>
+                            <th class="py-2 text-center">จำนวน</th>
+                            <th class="py-2 text-right">รวม</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rec-items-list" class="divide-y divide-slate-100"></tbody>
+                </table>
+
+                <div class="border-t pt-4 space-y-1 text-sm">
+                    <div class="flex justify-between text-xs"><span>ยอดรวม</span> <span id="rec-subtotal">฿0</span></div>
+                    <div class="flex justify-between text-xs"><span>ส่วนลด</span> <span id="rec-discount">-฿0</span></div>
+                    <div class="flex justify-between font-bold text-lg border-t pt-2 mt-2">
+                        <span>ยอดชำระสุทธิ</span>
+                        <span id="rec-total" class="text-sky-600">฿0</span>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center text-[10px] text-slate-400">
+                    <p>*** ขอบคุณที่ไว้วางใจให้เราดูแลสัตว์เลี้ยงของคุณ ***</p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-8 grid grid-cols-2 gap-3 no-print">
+                <button onclick="window.print()" class="bg-slate-100 text-slate-700 py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+                    <i class="fas fa-print"></i> พิมพ์ใบเสร็จ
+                </button>
+                <button id="email-btn" onclick="sendReceiptEmail()" class="bg-sky-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-sky-100">
+                    <i class="fas fa-paper-plane"></i> ส่งผ่าน Email
+                </button>
+            </div>
+            <div id="email-status" class="mt-3 text-center text-xs font-bold hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA STATE ---
+        let patients = [
+            { id: 1, petName: "กะทิ", species: "แมวไทย", ownerName: "คุณวิภา", email: "wipa@example.com", lastVisit: "-" }
+        ];
+        let inventory = [
+            { id: 101, name: "ยาหยอดเห็บหมัด", type: "Product", price: 250, stock: 20 },
+            { id: 201, name: "ตรวจสุขภาพประจำปี", type: "Service", price: 500, stock: 0 }
+        ];
+        let invoices = [];
+
+        // --- CORE ENGINE ---
+        function init() {
+            updateLiveTime();
+            setInterval(updateLiveTime, 1000);
+            renderPatients();
+            renderInventory();
+            updateDropdowns();
+            addBillRow();
+            renderDashboard();
+        }
+
+        function updateLiveTime() {
+            const now = new Date();
+            document.getElementById('live-time').innerText = now.toLocaleString('th-TH');
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.toggle('active', el.dataset.tab === tabId));
+            document.getElementById('tab-title').innerText = document.querySelector(`[data-tab="${tabId}"]`).innerText;
+            if(tabId === 'dashboard') renderDashboard();
+        }
+
+        function renderDashboard() {
+            const today = new Date().toDateString();
+            const todayInvoices = invoices.filter(inv => new Date(inv.date).toDateString() === today);
+            const totalIncome = todayInvoices.reduce((acc, inv) => acc + inv.total, 0);
+            const lowStock = inventory.filter(i => i.type === 'Product' && i.stock < 5).length;
+            
+            document.getElementById('dash-income').innerText = `฿${totalIncome.toLocaleString()}`;
+            document.getElementById('dash-cases').innerText = todayInvoices.length;
+            document.getElementById('dash-lowstock').innerText = lowStock;
+        }
+
+        // --- PATIENT LOGIC ---
+        function renderPatients() {
+            const grid = document.getElementById('patient-grid');
+            const search = document.getElementById('search-patient').value.toLowerCase();
+            grid.innerHTML = patients.filter(p => p.petName.toLowerCase().includes(search) || p.ownerName.toLowerCase().includes(search))
+                .map(p => `
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm flex items-center gap-4">
+                        <div class="w-12 h-12 bg-sky-50 rounded-full flex items-center justify-center text-sky-500"><i class="fas fa-paw"></i></div>
+                        <div>
+                            <h4 class="font-bold">${p.petName}</h4>
+                            <p class="text-xs text-slate-400">${p.ownerName} | ${p.species}</p>
+                            <p class="text-[10px] text-sky-600 mt-1">${p.email}</p>
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        function savePatient(e) {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            patients.push({
+                id: Date.now(),
+                petName: fd.get('petName'),
+                species: fd.get('species'),
+                ownerName: fd.get('ownerName'),
+                email: fd.get('email'),
+                lastVisit: '-'
+            });
+            closeModal('patient');
+            renderPatients();
+            updateDropdowns();
+        }
+
+        // --- INVENTORY LOGIC ---
+        function renderInventory() {
+            const list = document.getElementById('inventory-list');
+            list.innerHTML = inventory.map(i => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${i.type === 'Product' ? 'bg-sky-100 text-sky-600' : 'bg-orange-100 text-orange-600'}">${i.type === 'Product' ? 'สินค้า' : 'บริการ'}</span></td>
+                    <td class="p-4 font-bold">${i.name}</td>
+                    <td class="p-4">฿${i.price.toLocaleString()}</td>
+                    <td class="p-4">${i.type === 'Product' ? `<span class="${i.stock < 5 ? 'text-red-500 font-bold' : ''}">${i.stock}</span>` : '-'}</td>
+                    <td class="p-4"><button onclick="deleteInventory(${i.id})" class="text-slate-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td>
+                </tr>
+            `).join('');
+        }
+
+        function saveInventory(e) {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            inventory.push({
+                id: Date.now(),
+                name: fd.get('name'),
+                type: fd.get('type'),
+                price: parseFloat(fd.get('price')),
+                stock: parseInt(fd.get('stock')) || 0
+            });
+            closeModal('inventory');
+            renderInventory();
+        }
+
+        // --- BILLING LOGIC ---
+        let billRows = 0;
+        function addBillRow() {
+            billRows++;
+            const container = document.getElementById('bill-items-container');
+            const row = document.createElement('div');
+            row.id = `bill-row-${billRows}`;
+            row.className = "flex gap-2 items-center";
+            row.innerHTML = `
+                <select onchange="updateLine(${billRows})" class="flex-1 p-2 border rounded-xl outline-none text-sm item-select">
+                    <option value="">-- เลือกรายการ --</option>
+                    ${inventory.map(i => `<option value="${i.id}">${i.name} (฿${i.price})</option>`).join('')}
+                </select>
+                <input type="number" value="1" oninput="updateLine(${billRows})" class="w-16 p-2 border rounded-xl text-center text-sm font-bold item-qty">
+                <div class="w-20 text-right font-bold text-slate-400 text-sm line-total">฿0</div>
+                <button onclick="removeBillRow(${billRows})" class="text-slate-200 hover:text-red-500 p-1"><i class="fas fa-times"></i></button>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeBillRow(id) {
+            document.getElementById(`bill-row-${id}`).remove();
+            updateTotal();
+        }
+
+        function updateLine(id) {
+            const row = document.getElementById(`bill-row-${id}`);
+            const itemId = row.querySelector('.item-select').value;
+            const qty = row.querySelector('.item-qty').value;
+            const item = inventory.find(i => i.id == itemId);
+            if(item) {
+                row.querySelector('.line-total').innerText = `฿${(item.price * qty).toLocaleString()}`;
+            }
+            updateTotal();
+        }
+
+        function updateTotal() {
+            let subtotal = 0;
+            document.querySelectorAll('#bill-items-container > div').forEach(row => {
+                const itemId = row.querySelector('.item-select').value;
+                const qty = row.querySelector('.item-qty').value;
+                const item = inventory.find(i => i.id == itemId);
+                if(item) subtotal += (item.price * qty);
+            });
+            const discount = parseFloat(document.getElementById('bill-discount').value) || 0;
+            const total = Math.max(0, subtotal - discount);
+            
+            document.getElementById('bill-subtotal').innerText = `฿${subtotal.toLocaleString()}`;
+            document.getElementById('bill-total').innerText = `฿${total.toLocaleString()}`;
+            return { subtotal, discount, total };
+        }
+
+        let currentInvoice = null;
+
+        function processBilling() {
+            const patientId = document.getElementById('bill-patient-id').value;
+            if(!patientId) return alert("กรุณาเลือกคนไข้");
+
+            const items = [];
+            let stockError = false;
+
+            document.querySelectorAll('#bill-items-container > div').forEach(row => {
+                const itemId = row.querySelector('.item-select').value;
+                const qty = parseInt(row.querySelector('.item-qty').value);
+                if(itemId) {
+                    const invItem = inventory.find(i => i.id == itemId);
+                    if(invItem.type === 'Product' && invItem.stock < qty) {
+                        alert(`สินค้า "${invItem.name}" มีสต็อกไม่พอ (เหลือ ${invItem.stock})`);
+                        stockError = true;
+                        return;
+                    }
+                    items.push({ name: invItem.name, price: invItem.price, qty: qty, total: invItem.price * qty });
+                    if(invItem.type === 'Product') invItem.stock -= qty;
+                }
+            });
+
+            if(stockError) return;
+            if(items.length === 0) return alert("กรุณาเลือกอย่างน้อย 1 รายการ");
+
+            const { subtotal, discount, total } = updateTotal();
+            const patient = patients.find(p => p.id == patientId);
+            
+            currentInvoice = {
+                id: "INV" + Date.now().toString().slice(-6),
+                patient,
+                vet: document.getElementById('bill-vet-name').value,
+                date: new Date().toLocaleString('th-TH'),
+                items,
+                subtotal,
+                discount,
+                total
+            };
+
+            invoices.push(currentInvoice);
+            showReceipt(currentInvoice);
+            
+            // Reset POS for next bill
+            document.getElementById('bill-items-container').innerHTML = '';
+            document.getElementById('bill-discount').value = 0;
+            addBillRow();
+            updateTotal();
+            renderInventory();
+        }
+
+        function showReceipt(inv) {
+            document.getElementById('rec-id').innerText = inv.id;
+            document.getElementById('rec-date').innerText = inv.date;
+            document.getElementById('rec-pet-name').innerText = inv.patient.petName;
+            document.getElementById('rec-owner').innerText = inv.patient.ownerName;
+            document.getElementById('rec-vet').innerText = inv.vet;
+            
+            const list = document.getElementById('rec-items-list');
+            list.innerHTML = inv.items.map(i => `
+                <tr>
+                    <td class="py-2">${i.name}</td>
+                    <td class="py-2 text-center">x${i.qty}</td>
+                    <td class="py-2 text-right">฿${i.total.toLocaleString()}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('rec-subtotal').innerText = `฿${inv.subtotal.toLocaleString()}`;
+            document.getElementById('rec-discount').innerText = `-฿${inv.discount.toLocaleString()}`;
+            document.getElementById('rec-total').innerText = `฿${inv.total.toLocaleString()}`;
+            
+            document.getElementById('email-status').classList.add('hidden');
+            openModal('receipt');
+        }
+
+        // --- EMAIL SIMULATION ---
+        function sendReceiptEmail() {
+            if(!currentInvoice) return;
+            
+            const btn = document.getElementById('email-btn');
+            const status = document.getElementById('email-status');
+            
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> กำลังส่ง...`;
+            
+            // Simulate API delay
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-paper-plane"></i> ส่งผ่าน Email`;
+                
+                status.classList.remove('hidden');
+                status.innerHTML = `<span class="text-emerald-500"><i class="fas fa-check-circle"></i> ส่งใบเสร็จไปที่ ${currentInvoice.patient.email} สำเร็จ!</span>`;
+            }, 1500);
+        }
+
+        // --- UTILS ---
+        function updateDropdowns() {
+            const select = document.getElementById('bill-patient-id');
+            select.innerHTML = '<option value="">-- เลือกคนไข้ --</option>' + 
+                patients.map(p => `<option value="${p.id}">${p.petName} (${p.ownerName})</option>`).join('');
+        }
+
+        function openModal(id) { document.getElementById(`modal-${id}`).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(`modal-${id}`).classList.add('hidden'); }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
