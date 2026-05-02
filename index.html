@@ -17,11 +17,6 @@
         .heading-font {
             font-family: 'Kanit', sans-serif;
         }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
         .gradient-text {
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             -webkit-background-clip: text;
@@ -31,6 +26,22 @@
             background-color: #f8fafc;
             background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
             background-size: 24px 24px;
+        }
+        /* Timeline Custom Styles */
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background: #e2e8f0;
+            z-index: 0;
+        }
+        @media (max-width: 768px) {
+            .timeline-line::before {
+                left: 20px;
+            }
         }
     </style>
 </head>
@@ -47,6 +58,7 @@
                     <div class="ml-10 flex items-baseline space-x-8">
                         <a href="#about" class="hover:text-blue-600 px-3 py-2 transition-colors">เกี่ยวกับเรา</a>
                         <a href="#services" class="hover:text-blue-600 px-3 py-2 transition-colors">บริการ</a>
+                        <a href="#process" class="hover:text-blue-600 px-3 py-2 transition-colors">ขั้นตอนการทำงาน</a>
                         <a href="#projects" class="hover:text-blue-600 px-3 py-2 transition-colors">ผลงาน</a>
                         <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 transition-colors">ติดต่อเรา</a>
                     </div>
@@ -67,14 +79,10 @@
                 </p>
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
                     <a href="#projects" class="px-8 py-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all">ดูผลงานของเรา</a>
-                    <a href="#about" class="px-8 py-4 bg-white text-slate-700 border border-slate-200 rounded-xl font-semibold hover:bg-slate-50 transition-all">รู้จักเรามากขึ้น</a>
+                    <a href="#process" class="px-8 py-4 bg-white text-slate-700 border border-slate-200 rounded-xl font-semibold hover:bg-slate-50 transition-all">ขั้นตอนการทำงาน</a>
                 </div>
             </div>
         </div>
-        
-        <!-- Decorative Elements -->
-        <div class="absolute top-1/2 left-0 w-64 h-64 bg-blue-400/10 rounded-full blur-3xl -translate-y-1/2 -translate-x-1/2"></div>
-        <div class="absolute bottom-0 right-0 w-96 h-96 bg-indigo-400/10 rounded-full blur-3xl translate-y-1/2 translate-x-1/2"></div>
     </section>
 
     <!-- Stats Section -->
@@ -107,12 +115,8 @@
                     </div>
                     <h2 class="text-4xl font-bold heading-font mb-6">ห้างหุ้นส่วนจำกัด อะ เดฟ</h2>
                     <div class="space-y-4 text-lg text-slate-600 leading-relaxed">
-                        <p>
-                            ก่อตั้งขึ้นเมื่อวันที่ 15 กันยายน 2565 เราคือทีมงานรุ่นใหม่ที่มุ่งเน้นการขับเคลื่อนธุรกิจด้วยนวัตกรรม
-                        </p>
-                        <p>
-                            เราประกอบกิจการเกี่ยวกับ สื่อสิ่งพิมพ์ โฆษณา การทำการตลาดออนไลน์ รวมถึงการให้บริการพัฒนาซอฟต์แวร์ ให้คำปรึกษา และสร้างสรรค์โซลูชันให้ตอบสนองกับความต้องการทางธุรกิจในยุคดิจิทัล
-                        </p>
+                        <p>ก่อตั้งขึ้นเมื่อวันที่ 15 กันยายน 2565 เราคือทีมงานรุ่นใหม่ที่มุ่งเน้นการขับเคลื่อนธุรกิจด้วยนวัตกรรม</p>
+                        <p>เราประกอบกิจการเกี่ยวกับ สื่อสิ่งพิมพ์ โฆษณา การทำการตลาดออนไลน์ รวมถึงการให้บริการพัฒนาซอฟต์แวร์ ให้คำปรึกษา และพัฒนาโซลูชันให้ตอบสนองกับความต้องการ</p>
                         <div class="mt-8 p-6 bg-white border-l-4 border-blue-600 shadow-sm italic text-xl text-slate-800">
                             “โดยยึดหลักที่ว่าสิ่งที่เราทำจะสร้างคุณค่าให้กับผู้ที่ใช้งาน”
                         </div>
@@ -134,37 +138,150 @@
         </div>
     </section>
 
+    <!-- Project Plan / Timeline Section -->
+    <section id="process" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold heading-font mb-4">ขั้นตอนการทำงาน (Project Plan)</h2>
+                <p class="text-slate-500">มาตรฐานการทำงานที่ชัดเจน เพื่อผลลัพธ์ที่ดีที่สุดสำหรับคุณ</p>
+            </div>
+
+            <div class="relative timeline-line">
+                <!-- Step 1 -->
+                <div class="mb-12 flex flex-col md:flex-row items-center justify-between w-full">
+                    <div class="hidden md:block w-5/12 text-right pr-8">
+                        <h3 class="text-2xl font-bold text-blue-600 mb-2">01 Requirement Analysis</h3>
+                        <p class="text-slate-600">รับบรีฟและวิเคราะห์ความต้องการเชิงลึก เพื่อหาโซลูชันที่ตอบโจทย์ที่สุด</p>
+                    </div>
+                    <div class="z-10 flex items-center justify-center w-10 h-10 bg-blue-600 rounded-full text-white font-bold ring-8 ring-blue-50">1</div>
+                    <div class="md:w-5/12 w-full pl-8 mt-4 md:mt-0">
+                        <div class="md:hidden block">
+                             <h3 class="text-xl font-bold text-blue-600 mb-1">Requirement Analysis</h3>
+                             <p class="text-slate-600 mb-4">รับบรีฟและวิเคราะห์ความต้องการเชิงลึก</p>
+                        </div>
+                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                            <ul class="space-y-2 text-sm text-slate-500">
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-green-500"></i> ประชุมรับบรีฟ (Briefing)</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-green-500"></i> กำหนดขอบเขตงาน (Scope of Work)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="mb-12 flex flex-col md:flex-row-reverse items-center justify-between w-full">
+                    <div class="hidden md:block w-5/12 text-left pl-8">
+                        <h3 class="text-2xl font-bold text-blue-600 mb-2">02 Design & Prototype</h3>
+                        <p class="text-slate-600">ออกแบบโครงสร้าง (UX/UI) และตัวอย่างก่อนเริ่มพัฒนาจริง</p>
+                    </div>
+                    <div class="z-10 flex items-center justify-center w-10 h-10 bg-blue-600 rounded-full text-white font-bold ring-8 ring-blue-50">2</div>
+                    <div class="md:w-5/12 w-full pr-8 mt-4 md:mt-0 text-right md:text-right">
+                         <div class="md:hidden block text-left pl-8">
+                             <h3 class="text-xl font-bold text-blue-600 mb-1">Design & Prototype</h3>
+                             <p class="text-slate-600 mb-4 text-left">ออกแบบโครงสร้างและตัวอย่าง</p>
+                        </div>
+                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-left">
+                            <ul class="space-y-2 text-sm text-slate-500">
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-green-500"></i> Wireframe & UX Design</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-green-500"></i> UI Visual Mockup</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="mb-12 flex flex-col md:flex-row items-center justify-between w-full">
+                    <div class="hidden md:block w-5/12 text-right pr-8">
+                        <h3 class="text-2xl font-bold text-blue-600 mb-2">03 Development</h3>
+                        <p class="text-slate-600">ลงมือพัฒนาซอฟต์แวร์หรือสื่อสิ่งพิมพ์ตามที่ได้ออกแบบไว้</p>
+                    </div>
+                    <div class="z-10 flex items-center justify-center w-10 h-10 bg-blue-600 rounded-full text-white font-bold ring-8 ring-blue-50">3</div>
+                    <div class="md:w-5/12 w-full pl-8 mt-4 md:mt-0">
+                        <div class="md:hidden block">
+                             <h3 class="text-xl font-bold text-blue-600 mb-1">Development</h3>
+                             <p class="text-slate-600 mb-4">ลงมือพัฒนาจริงตามแผน</p>
+                        </div>
+                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                            <ul class="space-y-2 text-sm text-slate-500">
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-green-500"></i> Coding / Content Creation</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-green-500"></i> Weekly Progress Report</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="mb-12 flex flex-col md:flex-row-reverse items-center justify-between w-full">
+                    <div class="hidden md:block w-5/12 text-left pl-8">
+                        <h3 class="text-2xl font-bold text-blue-600 mb-2">04 Quality Assurance</h3>
+                        <p class="text-slate-600">ตรวจสอบความเรียบร้อยและทดสอบระบบให้พร้อมใช้งาน 100%</p>
+                    </div>
+                    <div class="z-10 flex items-center justify-center w-10 h-10 bg-blue-600 rounded-full text-white font-bold ring-8 ring-blue-50">4</div>
+                    <div class="md:w-5/12 w-full pr-8 mt-4 md:mt-0 text-right">
+                         <div class="md:hidden block text-left pl-8">
+                             <h3 class="text-xl font-bold text-blue-600 mb-1">QA & Testing</h3>
+                             <p class="text-slate-600 mb-4 text-left">ตรวจสอบความสมบูรณ์ของงาน</p>
+                        </div>
+                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-left">
+                            <ul class="space-y-2 text-sm text-slate-500">
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-green-500"></i> System Testing (UAT)</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-green-500"></i> Bug Fixing & Refinement</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="flex flex-col md:flex-row items-center justify-between w-full">
+                    <div class="hidden md:block w-5/12 text-right pr-8">
+                        <h3 class="text-2xl font-bold text-blue-600 mb-2">05 Handover & Support</h3>
+                        <p class="text-slate-600">ส่งมอบงานพร้อมคู่มือ และดูแลหลังการขายอย่างต่อเนื่อง</p>
+                    </div>
+                    <div class="z-10 flex items-center justify-center w-10 h-10 bg-green-500 rounded-full text-white font-bold ring-8 ring-green-50">
+                        <i class="fa-solid fa-flag-checkered"></i>
+                    </div>
+                    <div class="md:w-5/12 w-full pl-8 mt-4 md:mt-0">
+                        <div class="md:hidden block">
+                             <h3 class="text-xl font-bold text-green-600 mb-1">Handover</h3>
+                             <p class="text-slate-600 mb-4">ส่งมอบงานและดูแลหลังการขาย</p>
+                        </div>
+                        <div class="p-6 bg-green-50 rounded-2xl border border-green-100">
+                            <p class="text-sm text-green-700 font-semibold">Project Successful Delivery!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Services Section -->
-    <section id="services" class="py-24 bg-white">
+    <section id="services" class="py-24 bg-slate-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
                 <h2 class="text-4xl font-bold heading-font mb-4">บริการของเรา</h2>
                 <p class="text-slate-500">เราพร้อมเป็นพาร์ทเนอร์ในทุกขั้นตอนของการเติบโต</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Service 1 -->
-                <div class="p-8 rounded-3xl border border-slate-100 hover:border-blue-200 hover:shadow-xl transition-all group">
-                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors">
+                <div class="p-8 bg-white rounded-3xl border border-slate-100 hover:border-blue-200 hover:shadow-xl transition-all group text-center">
+                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors mx-auto">
                         <i class="fa-solid fa-laptop-code text-2xl text-blue-600 group-hover:text-white"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Software Development</h3>
-                    <p class="text-slate-600">รับพัฒนาซอฟต์แวร์ตามความต้องการ (Custom Made) ทั้ง Web Application และ Mobile App</p>
+                    <h3 class="text-2xl font-bold mb-4 uppercase tracking-tight">Software Dev</h3>
+                    <p class="text-slate-600">รับพัฒนาซอฟต์แวร์ตามความต้องการ (Custom Made) ทั้ง Web และ Mobile App</p>
                 </div>
-                <!-- Service 2 -->
-                <div class="p-8 rounded-3xl border border-slate-100 hover:border-blue-200 hover:shadow-xl transition-all group">
-                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors">
+                <div class="p-8 bg-white rounded-3xl border border-slate-100 hover:border-blue-200 hover:shadow-xl transition-all group text-center">
+                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors mx-auto">
                         <i class="fa-solid fa-bullhorn text-2xl text-blue-600 group-hover:text-white"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Digital Marketing</h3>
-                    <p class="text-slate-600">วางแผนการตลาดออนไลน์ โฆษณา และการบริหารจัดการสื่อโซเชียลมีเดียครบวงจร</p>
+                    <h3 class="text-2xl font-bold mb-4 uppercase tracking-tight">Marketing</h3>
+                    <p class="text-slate-600">วางแผนการตลาดออนไลน์ โฆษณา และการบริหารจัดการสื่อครบวงจร</p>
                 </div>
-                <!-- Service 3 -->
-                <div class="p-8 rounded-3xl border border-slate-100 hover:border-blue-200 hover:shadow-xl transition-all group">
-                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors">
-                        <i class="fa-solid fa-comments text-2xl text-blue-600 group-hover:text-white"></i>
+                <div class="p-8 bg-white rounded-3xl border border-slate-100 hover:border-blue-200 hover:shadow-xl transition-all group text-center">
+                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors mx-auto">
+                        <i class="fa-solid fa-print text-2xl text-blue-600 group-hover:text-white"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">IT Consulting</h3>
-                    <p class="text-slate-600">ให้คำปรึกษาด้านเทคโนโลยีเพื่อปรับปรุงกระบวนการทำงานให้มีประสิทธิภาพสูงสุด</p>
+                    <h3 class="text-2xl font-bold mb-4 uppercase tracking-tight">Media & Print</h3>
+                    <p class="text-slate-600">บริการสื่อสิ่งพิมพ์และสื่อโฆษณาที่สร้างคุณค่าให้กับแบรนด์ของคุณ</p>
                 </div>
             </div>
         </div>
@@ -176,7 +293,7 @@
             <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
                 <div>
                     <h2 class="text-4xl font-bold heading-font mb-4">ผลงานที่ผ่านมา</h2>
-                    <p class="text-slate-400">ความภูมิใจที่เราได้ร่วมสร้างคุณค่าให้กับลูกค้ากว่า 30 โปรเจกต์</p>
+                    <p class="text-slate-400 italic">"3 ปี มากกว่า 30 โปรเจกต์ความสำเร็จ"</p>
                 </div>
                 <div class="text-right">
                     <span class="text-6xl font-bold text-blue-500">30+</span>
@@ -184,9 +301,8 @@
                 </div>
             </div>
             
-            <!-- Project Grid / Cloud -->
             <div class="flex flex-wrap justify-center gap-4">
-                 <!-- <div class="px-6 py-3 bg-white/5 border border-white/10 rounded-full hover:bg-blue-600 transition-colors cursor-default">Bitkub</div>
+                <!--<div class="px-6 py-3 bg-white/5 border border-white/10 rounded-full hover:bg-blue-600 transition-colors cursor-default">Bitkub</div>
                 <div class="px-6 py-3 bg-white/5 border border-white/10 rounded-full hover:bg-blue-600 transition-colors cursor-default">Harmony Direction</div>
                 <div class="px-6 py-3 bg-white/5 border border-white/10 rounded-full hover:bg-blue-600 transition-colors cursor-default">Index Gamecenter</div>
                 <div class="px-6 py-3 bg-white/5 border border-white/10 rounded-full hover:bg-blue-600 transition-colors cursor-default">Nicefeet</div>
@@ -206,52 +322,42 @@
                 <div class="px-6 py-3 bg-white/5 border border-white/10 rounded-full hover:bg-blue-600 transition-colors cursor-default">Ksmpacific</div>
                 <div class="px-6 py-3 bg-white/5 border border-white/10 rounded-full hover:bg-blue-600 transition-colors cursor-default">Erosterz</div>-->
             </div>
-            
-            <div class="mt-20 text-center text-slate-500 italic">
-                ... และอีกหลายโครงการที่เราร่วมเป็นส่วนหนึ่งของความสำเร็จ ...
-            </div>
         </div>
     </section>
 
     <!-- Contact Section -->
     <section id="contact" class="py-24 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-blue-600 rounded-[3rem] p-8 md:p-16 text-white flex flex-col lg:flex-row gap-12 items-center">
+            <div class="bg-blue-600 rounded-[3rem] p-8 md:p-16 text-white flex flex-col lg:flex-row gap-12 items-center shadow-2xl shadow-blue-200">
                 <div class="lg:w-1/2">
                     <h2 class="text-4xl md:text-5xl font-bold heading-font mb-6">เริ่มต้นโปรเจกต์ของคุณกับเราวันนี้</h2>
-                    <p class="text-blue-100 text-lg mb-8">
-                        ไม่ว่าจะเป็นการพัฒนาซอฟต์แวร์หรือการทำตลาดออนไลน์ เราพร้อมให้คำปรึกษาเพื่อหาทางออกที่ดีที่สุดให้กับธุรกิจของคุณ
-                    </p>
+                    <p class="text-blue-100 text-lg mb-8 italic">"เราพร้อมเปลี่ยนไอเดียของคุณให้เป็นความจริงที่มีคุณค่า"</p>
                     <div class="space-y-4">
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
-                                <i class="fa-solid fa-calendar"></i>
-                            </div>
+                            <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center"><i class="fa-solid fa-calendar"></i></div>
                             <span>ก่อตั้ง 15 กันยายน 2565</span>
                         </div>
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
-                                <i class="fa-solid fa-location-dot"></i>
-                            </div>
-                            <span>Thailand</span>
+                            <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center"><i class="fa-solid fa-location-dot"></i></div>
+                            <span>Bangkok, Thailand</span>
                         </div>
                     </div>
                 </div>
                 <div class="lg:w-1/2 w-full">
-                    <form class="bg-white p-8 rounded-3xl text-slate-800 space-y-4">
+                    <form class="bg-white p-8 rounded-3xl text-slate-800 space-y-4 shadow-xl">
                         <div>
                             <label class="block text-sm font-medium mb-1">ชื่อ-นามสกุล / บริษัท</label>
                             <input type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="คุณสมชาย ใจดี">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-1">อีเมลหรือเบอร์โทรติดต่อ</label>
-                            <input type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="example@email.com">
+                            <label class="block text-sm font-medium mb-1">ช่องทางติดต่อ</label>
+                            <input type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="อีเมล หรือ เบอร์โทรศัพท์">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-1">รายละเอียดโปรเจกต์ที่สนใจ</label>
-                            <textarea class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all h-32" placeholder="เล่าให้เราฟังคร่าวๆ เกี่ยวกับความต้องการของคุณ"></textarea>
+                            <label class="block text-sm font-medium mb-1">รายละเอียดงาน</label>
+                            <textarea class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all h-24" placeholder="โปรเจกต์ที่สนใจ..."></textarea>
                         </div>
-                        <button class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all">ส่งข้อความ</button>
+                        <button class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">ส่งคำขอรับคำปรึกษา</button>
                     </form>
                 </div>
             </div>
@@ -262,13 +368,13 @@
     <footer class="py-12 border-t border-slate-200">
         <div class="max-w-7xl mx-auto px-4 text-center">
             <div class="text-2xl font-bold heading-font text-blue-600 mb-4">A DEVV</div>
-            <p class="text-slate-500 mb-8">ห้างหุ้นส่วนจำกัด อะ เดฟ</p>
+            <p class="text-slate-500 mb-8 font-medium">ห้างหุ้นส่วนจำกัด อะ เดฟ</p>
             <div class="flex justify-center space-x-6 mb-8 text-slate-400">
-                <a href="#" class="hover:text-blue-600"><i class="fa-brands fa-facebook-f"></i></a>
-                <a href="#" class="hover:text-blue-600"><i class="fa-brands fa-line"></i></a>
-                <a href="#" class="hover:text-blue-600"><i class="fa-solid fa-envelope"></i></a>
+                <a href="#" class="hover:text-blue-600 transition-colors"><i class="fa-brands fa-facebook-f text-xl"></i></a>
+                <a href="#" class="hover:text-blue-600 transition-colors"><i class="fa-brands fa-line text-xl"></i></a>
+                <a href="#" class="hover:text-blue-600 transition-colors"><i class="fa-solid fa-envelope text-xl"></i></a>
             </div>
-            <p class="text-sm text-slate-400">&copy; 2025 A DEVV Limited Partnership. All rights reserved.</p>
+            <p class="text-xs text-slate-400">&copy; 2022-2025 A DEVV Limited Partnership. All rights reserved.</p>
         </div>
     </footer>
 
